@@ -14,3 +14,12 @@ exports.User = [
         password: 'bar'
     }
 ];
+
+exports.Creation = [
+    {
+        name: 'creation1'
+    },
+    {
+        name: 'creation2'
+    }
+];
