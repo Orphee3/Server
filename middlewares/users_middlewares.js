@@ -2,12 +2,12 @@
  * Created by Eric on 19/02/2015.
  */
 var Q = require('q');
-var User = require('../models/user');
+var Model = require('../models/data_models');
 
 exports.create = function(req, res) {
     var deferred = Q.defer();
 
-    var user = new User();
+    var user = new Model.User();
 
     user.name = req.body.name;
     user.username = req.body.username;
@@ -35,7 +35,7 @@ exports.create = function(req, res) {
 exports.getAll = function(req, res) {
   var deferred = Q.defer();
 
-    User.find(function(err, users) {
+    Model.User.find(function(err, users) {
         if (err) {
             var error = new Error(err);
             error.status = 500;
@@ -50,7 +50,7 @@ exports.getAll = function(req, res) {
 exports.getById = function(req, res) {
     var deferred = Q.defer();
 
-    User.findById(req.params.id, function(err, user) {
+    Model.User.findById(req.params.id, function(err, user) {
         if (err) {
             var error = new Error(err);
             error.status = 500;
@@ -71,7 +71,7 @@ exports.getById = function(req, res) {
 exports.delete = function(req, res) {
     var deferred = Q.defer();
 
-    User.remove({ _id: req.params.id}, function(err, user) {
+    Model.User.remove({ _id: req.params.id}, function(err, user) {
         if (err)
             deferred.reject(err);
         else

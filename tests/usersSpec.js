@@ -12,10 +12,10 @@ chai.use(chaiAsPromised);
 //mongoose.connect('mongodb://localhost/orpheeTest');
 mockgoose(mongoose);
 
-var User = require('../models/user.js');
+var Model = require('../models/data_models.js');
 var mockdata = require('./data-fixtures');
 
-User.create(mockdata.User, function(err) {
+Model.User.create(mockdata.User, function(err) {
     console.log(err || 'mockdata user created\n');
 });
 
