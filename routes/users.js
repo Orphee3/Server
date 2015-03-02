@@ -56,7 +56,7 @@ router.get('/user/:id/comments', function(req, res, next) {
         .done();
 });
 
-route.get('/user/:id/friends', function(req, res, next) {
+router.get('/user/:id/friends', function(req, res, next) {
     middleware.getFriends(req, res)
         .then(function(data) {res.send(data);})
         .catch(function(err) {res.status(err.status).send(err.message);})
