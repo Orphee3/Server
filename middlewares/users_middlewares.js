@@ -1,8 +1,10 @@
 /**
  * Created by Eric on 19/02/2015.
  */
-var Q = require('q');
-var Model = require('../models/data_models');
+var Q = require('q'),
+    Model = require('../models/data_models'),
+    errMod = require('./error_module.js'),
+    utilities = require('./utilities_module.js');
 
 exports.create = function(req, res) {
     var deferred = Q.defer();
@@ -42,11 +44,8 @@ exports.getAll = function(req, res) {
         .skip(offset)
         .limit(size)
         .exec(function(err, users) {
-            if (err) {
-                //var error = new Error(err);
-                //error.status = 500;
-                deferred.reject(getError500(err));
-            }
+            if (err)
+                deferred.reject(errMod.getError500(err));
             else
                 deferred.resolve(users);
         });
@@ -57,91 +56,32 @@ exports.getById = function(req, res) {
     var deferred = Q.defer();
 
     Model.User.findById(req.params.id, function(err, user) {
-        if (err) {
-            //var error = new Error(err);
-            //error.status = 500;
-            deferred.reject(getError500(err));
-        }
-        else {
-            /*if (user == null)
-                deferred.resolve('no user');
-            else
-                deferred.resolve(user);*/
+        if (err)
+            deferred.reject(errMod.getError500(err));
+        else
             deferred.resolve(user);
-        }
     });
-    //deferred.resolve('aaa');
     return deferred.promise;
 };
 
 exports.getCreation = function(req, res) {
-    var deferred = Q.defer();
-
-    Model.User.findById(req.params.id)
-        .populate('creation')
-        .exec(function(err, user) {
-            if (err)
-                deferred.reject(getError500(err));
-            else
-                deferred.resolve(user.creation);
-        });
-    return deferred.promise;
+    return utilities.getModelRefInfo(Model.User, req.params.id, 'creation');
 };
 
 exports.getGroup = function(req, res) {
-    var deferred = Q.defer();
-
-    Model.User.findById(req.params.id)
-        .populate('group')
-        .exec(function(err, user) {
-            if (err)
-                deferred.reject(getError500(err));
-            else
-                deferred.resolve(user.group);
-        });
-    return deferred.promise;
+    return utilities.getModelRefInfo(Model.User, req.params.id, 'group');
 };
 
 exports.getLikes = function(req, res) {
-    var deferred = Q.defer();
-
-    Model.User.findById(req.params.id)
-        .populate('likes')
-        .exec(function(err, user) {
-            if (err)
-                deferred.reject(getError500(err));
-            else
-                deferred.resolve(user.likes);
-        });
-    return deferred.promise;
+    return utilities.getModelRefInfo(Model.User, req.params.id, 'likes');
 };
 
 exports.getComments = function(req, res) {
-    var deferred = Q.defer();
-
-    Model.User.findById(req.params.id)
-        .populate('comments')
-        .exec(function(err, user) {
-            if (err)
-                deferred.reject(err);
-            else
-                deferred.resolve(user.comments);
-        });
-    return deferred.promise;
+    return utilities.getModelRefInfo(Model.User, req.params.id, 'comments');
 };
 
 exports.getFriends = function(req, res) {
-    var deferred = Q.defer();
-
-    Model.User.findById(req.params.id)
-        .populate('friends')
-        .exec(function(err, user) {
-            if (err)
-                deferred.reject(err);
-            else
-                deferred.resolve(user.friends);
-        });
-    return deferred.promise;
+    return utilities.getModelRefInfo(Model.User, req.params.id, 'friends');
 };
 
 exports.update = function(req, res) {
@@ -149,9 +89,7 @@ exports.update = function(req, res) {
 
     Model.User.findById(req.params.id, function(err, user) {
         if (err) {
-           //var error = new Error(err);
-           //error.status = 500;
-           deferred.reject(getError500(err));
+           deferred.reject(errMod.getError500(err));
         }
         else {
             if (req.body.name) {user.name = req.body.name;}
@@ -164,7 +102,7 @@ exports.update = function(req, res) {
             user.friends = req.body.friends;
             user.save(function(err, user) {
                 if (err)
-                    deferred.reject(getError500(err));
+                    deferred.reject(errMod.getError500(err));
                 else
                     deferred.resolve(user);
             });
@@ -177,19 +115,11 @@ exports.delete = function(req, res) {
     var deferred = Q.defer();
 
     Model.User.remove({ _id: req.params.id}, function(err, user) {
-        if (err) {
-            //var error = new Error(err);
-            //error.status = 500;
-            deferred.reject(getError500(err));
-        }
+        if (err)
+            deferred.reject(errMod.getError500(err));
         else
             deferred.resolve('user deleted');
     });
     return deferred.promise;
 };
 
-function getError500(err) {
-    var error = new Error(err);
-    error.status = 500;
-    return error;
-}
