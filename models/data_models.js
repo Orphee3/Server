@@ -7,7 +7,6 @@ var UserSchema = mongoose.Schema({
     name: String,
     username: {type: String, required: true, index: {unique: true}},
     password: {type: String, required: true, select: false},
-    dateCreation: {type: Date, default: Date.now},
     creation: [{type: mongoose.Schema.Types.ObjectId, ref: 'Creation'}],
     group: [{type: mongoose.Schema.Types.ObjectId, ref: 'Group'}],
     likes: [{type: mongoose.Schema.Types.ObjectId, ref: 'Creation'}],
@@ -16,8 +15,7 @@ var UserSchema = mongoose.Schema({
 });
 
 var CreationSchema = mongoose.Schema({
-    name: {type: String, required: true},
-    dateCreation : {type: Date, default: Date.now},
+    name: String,
     creator: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     creatorGroup: {type: mongoose.Schema.Types.ObjectId, ref: 'Group'},
     nbLikes: Number,
@@ -26,13 +24,11 @@ var CreationSchema = mongoose.Schema({
 
 var CommentSchema = mongoose.Schema({
     creator: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    dateCreation: {type: Date, default: Date.now},
     message: String
 });
 
 var GroupSchema = mongoose.Schema({
-    name: {type: String, required: true},
-    dateCreation: {type: Date, default: Date.now},
+    name: String,
     members: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     creation: [{type: mongoose.Schema.Types.ObjectId, ref: 'Creation'}]
 });
