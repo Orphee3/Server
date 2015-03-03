@@ -3,7 +3,8 @@
  */
 var Q = require('q'),
     Model = require('../models/data_models'),
-    errMod = require('./error_module.js');
+    errMod = require('./error_module.js'),
+    utilities = require('./utilities_module.js');
 
 exports.create = function(req, res) {
     var deferred = Q.defer();
@@ -63,38 +64,24 @@ exports.getById = function(req, res) {
     return deferred.promise;
 };
 
-function getUserInfo(id, field) {
-    var deferred = Q.defer();
-
-    Model.User.findById(id)
-        .populate(field)
-        .exec(function(err, user) {
-            if (err)
-                deferred.reject(errMod.getError500(err));
-            else
-                deferred.resolve(user[field]);
-        });
-    return deferred.promise;
-}
-
 exports.getCreation = function(req, res) {
-    return getUserInfo(req.params.id, 'creation');
+    return utilities.getModelRefInfo(Model.User, req.params.id, 'creation');
 };
 
 exports.getGroup = function(req, res) {
-    return getUserInfo(req.params.id, 'group');
+    return utilities.getModelRefInfo(Model.User, req.params.id, 'group');
 };
 
 exports.getLikes = function(req, res) {
-    return getUserInfo(req.params.id, 'likes');
+    return utilities.getModelRefInfo(Model.User, req.params.id, 'likes');
 };
 
 exports.getComments = function(req, res) {
-    return getUserInfo(req.params.id, 'comments');
+    return utilities.getModelRefInfo(Model.User, req.params.id, 'comments');
 };
 
 exports.getFriends = function(req, res) {
-    return getUserInfo(req.params.id, 'friends');
+    return utilities.getModelRefInfo(Model.User, req.params.id, 'friends');
 };
 
 exports.update = function(req, res) {
