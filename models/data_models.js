@@ -25,7 +25,7 @@ var CreationSchema = mongoose.Schema({
 });
 
 var CommentSchema = mongoose.Schema({
-    creator: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    creator: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
     dateCreation: {type: Date, default: Date.now},
     message: String
 });
