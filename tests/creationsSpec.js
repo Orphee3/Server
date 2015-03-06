@@ -146,7 +146,10 @@ describe('Unit test for creations middleware', function() {
 
     describe('getComments middleware unit test', function() {
        it('resolves get an array of comments from a creation', function() {
-           return Model.Comment.create({message: 'getComments'})
+           return Model.User.create({name: 'getCommentsCreation', username: 'getCommentsCreation', password: 'getCommentsCreation'})
+               .then(function(user) {
+                   return Model.Comment.create({creator: user._id, message: 'getComments'});
+               })
                .then(function(comment) {
                    var obj = new Model.Creation();
                    obj.name = 'getComments';

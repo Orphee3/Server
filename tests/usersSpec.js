@@ -214,26 +214,24 @@ describe('Unit test for users middlewares', function() {
 
     describe('getComments unit test', function() {
         it('resolves get an array of comments from a user', function() {
-            return Model.Comment.create({message: 'comment'})
-                .then(function(comment) {
-                    var obj = new Model.User();
-                    obj.name = 'getComments';
-                    obj.username = 'getComments';
-                    obj.password = 'getComments';
-                    obj.comments.push(comment._id);
-                    return Model.User.create(obj);
-                })
+            return Model.User.create({name: 'getCommentsUser', username: 'getCommentsUser', password: 'getCommentsUser'})
                 .then(function(user) {
-                    req = httpMocks.createRequest({
-                        params: {
-                            id: user._id
-                        }
-                    });
-                    return chai.expect(middlewares.getComments(req, res))
-                        .to.be.fulfilled.then(function(data) {
-                            console.log(data);
-                        });
-                })
+                   return Model.Comment.create({creator: user._id, message: 'comment'})
+                       .then(function(comment) {
+                           user.comments.push(comment._id);
+                           user.save();
+
+                           req = httpMocks.createRequest({
+                               params: {
+                                   id: user._id
+                               }
+                           });
+                           return chai.expect(middlewares.getComments(req, res))
+                               .to.be.fulfilled.then(function(data) {
+                                   console.log(data);
+                               });
+                       })
+                });
         });
 
         it('rejects getting from a wrong id of user', function() {
