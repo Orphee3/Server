@@ -1,0 +1,475 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>orphee_api</title><link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/slate/bootstrap.min.css"><link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"><link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,700|Inconsolata|Raleway:200"><style>/* Highlight.js Theme Tomorrow Night Eighties */
+pre{color:#fff;background:#272b30;border:1px solid rgba(255, 255, 255, 0.2)}
+pre code{display:block;padding:.5em;background:#272b30}
+.hljs-comment,.hljs-title{color:#999}.hljs-variable,.hljs-attribute,.hljs-tag,.hljs-regexp,.ruby .hljs-constant,.xml .hljs-tag .hljs-title,.xml .hljs-pi,.xml .hljs-doctype,.html .hljs-doctype,.css .hljs-id,.css .hljs-class,.css .hljs-pseudo{color:#f2777a}.hljs-number,.hljs-preprocessor,.hljs-pragma,.hljs-built_in,.hljs-literal,.hljs-params,.hljs-constant{color:#f99157}.ruby .hljs-class .hljs-title,.css .hljs-rules .hljs-attribute{color:#fc6}.hljs-string,.hljs-value,.hljs-inheritance,.hljs-header,.ruby .hljs-symbol,.xml .hljs-cdata{color:#9c9}.css .hljs-hexcolor{color:#6cc}.hljs-function,.python .hljs-decorator,.python .hljs-title,.ruby .hljs-function .hljs-title,.ruby .hljs-title .hljs-keyword,.perl .hljs-sub,.javascript .hljs-title,.coffeescript .hljs-title{color:#69c}.hljs-keyword,.javascript .hljs-function{color:#c9c}.hljs{display:block;background:#2d2d2d;color:#ccc;padding:.5em}.coffeescript .javascript,.javascript .xml,.tex .hljs-formula,.xml .javascript,.xml .vbscript,.xml .css,.xml .hljs-cdata{opacity:.5}</style><style>body,
+h4,
+h5 {
+  font-family: 'Roboto' sans-serif !important;
+}
+h1,
+h2,
+h3,
+.aglio {
+  font-family: 'Raleway' sans-serif !important;
+}
+h1 a,
+h2 a,
+h3 a,
+h4 a,
+h5 a {
+  display: none;
+}
+h1:hover a,
+h2:hover a,
+h3:hover a,
+h4:hover a,
+h5:hover a {
+  display: inline;
+}
+code {
+  color: #222;
+  background-color: #aaa;
+  font-family: 'Inconsolata' monospace !important;
+}
+a[data-target] {
+  cursor: pointer;
+}
+h4 {
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.back-to-top {
+  position: fixed;
+  z-index: 1;
+  bottom: 0px;
+  right: 24px;
+  padding: 4px 8px;
+  color: #aaa;
+  background-color: #171b20;
+  text-decoration: none !important;
+  border-top: 1px solid rgba(0,0,0,0.1);
+  border-left: 1px solid rgba(0,0,0,0.1);
+  border-right: 1px solid rgba(0,0,0,0.1);
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+.panel {
+  overflow: hidden;
+}
+.panel-heading code {
+  margin-left: 3px;
+  color: #000;
+  background-color: rgba(255,255,255,0.7);
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
+.panel-heading h3 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+a.list-group-item:hover {
+  background-color: #f8f8f8;
+  border-left: 2px solid #555;
+  padding-left: 15px;
+}
+.indent {
+  display: block;
+  text-indent: 16px;
+}
+.list-group-item {
+  padding-left: 16px;
+}
+.list-group-item .toggle .open {
+  display: block;
+}
+.list-group-item .toggle .closed {
+  display: none;
+}
+.list-group-item.collapsed .toggle .open {
+  display: none;
+}
+.list-group-item.collapsed .toggle .closed {
+  display: block;
+}
+a.list-group-item:hover {
+  background-color: #4b5159;
+  border-left-color: #c8c8c8;
+}
+a.list-group-item {
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+a.list-group-item.heading {
+  font-size: 15px;
+  background-color: #3e444c;
+}
+a.list-group-item.heading:hover {
+  background-color: #4b5159;
+}
+.list-group-item.collapse {
+  display: none;
+}
+.list-group-item.collapse.in {
+  display: block;
+}
+.list-group-item a span.closed {
+  display: none;
+}
+.list-group-item a span.open {
+  display: block;
+}
+.list-group-item a.collapsed span.closed {
+  display: block;
+}
+.list-group-item a.collapsed span.open {
+  display: none;
+}
+#nav {
+  width: inherit;
+  margin-top: 38px;
+  max-width: 255px;
+  top: 0;
+  bottom: 0;
+  padding-right: 12px;
+  padding-bottom: 12px;
+  overflow-y: auto;
+}
+@media (max-width: 1199px) {
+  #nav {
+    max-width: 212px;
+  }
+}
+</style></head><body><a href="#top" class="text-muted back-to-top"><i class="fa fa-toggle-up"></i>&nbsp;Back to top</a><div class="container"><div class="row"><div class="col-md-3"><nav id="nav" class="hidden-sm hidden-xs affix nav"><div class="list-group"><a href="#" class="list-group-item heading">Home</a></div><div class="list-group"><a data-toggle="" data-target="#page:users-menu" href="#page:users" class="list-group-item heading collapsed">Users</a><div id="page:users-menu"><a href="#page:users,header:users-users-collection" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item">Users Collection</a><a href="#page:users,header:users-users-collection-get" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span><span class="indent">List all Users</span></a><a href="#page:users,header:users-users-collection-post" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-success"><i class="fa fa-plus"></i></span><span class="indent">Create a User</span></a><a href="#page:users,header:users-user" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item">User</a><a href="#page:users,header:users-user-get" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span><span class="indent">Retrieve a User</span></a><a href="#page:users,header:users-user-put" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-warning"><i class="fa fa-pencil"></i></span><span class="indent">Update a User</span></a><a href="#page:users,header:users-user-delete" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-danger"><i class="fa fa-times"></i></span><span class="indent">Delete a User</span></a><a href="#page:users,header:users-get-user's-creations" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span>GET User's creations</a><a href="#page:users,header:users-get-user's-group" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span>GET User's group</a><a href="#page:users,header:users-get-user's-likes" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span>Get User's likes</a><a href="#page:users,header:users-get-user's-comments" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span>Get User's comments</a><a href="#page:users,header:users-get-user's-friends" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span>Get User's friends</a></div></div><div class="list-group"><a data-toggle="" data-target="#page:creations-menu" href="#page:creations" class="list-group-item heading collapsed">Creations</a><div id="page:creations-menu"><a href="#page:creations,header:creations-creations-collection" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item">Creations Collection</a><a href="#page:creations,header:creations-creations-collection-get" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span><span class="indent">List All Creations</span></a><a href="#page:creations,header:creations-creations-collection-post" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-success"><i class="fa fa-plus"></i></span><span class="indent">Create a Creation</span></a><a href="#page:creations,header:creations-creation" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item">Creation</a><a href="#page:creations,header:creations-creation-get" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span><span class="indent">Retrieve a Creation</span></a><a href="#page:creations,header:creations-creation-put" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-warning"><i class="fa fa-pencil"></i></span><span class="indent">Update a Creation</span></a><a href="#page:creations,header:creations-creation-delete" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-danger"><i class="fa fa-times"></i></span><span class="indent">Delete a Creation</span></a><a href="#page:creations,header:creations-get-creation's-creator" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span>GET Creation's creator</a><a href="#page:creations,header:creations-get-user's-group" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span>GET User's group</a><a href="#page:creations,header:creations-get-user's-likes" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span>Get User's likes</a></div></div><div class="list-group"><a data-toggle="" data-target="#page:comments-menu" href="#page:comments" class="list-group-item heading collapsed">Comments</a><div id="page:comments-menu"><a href="#page:comments,header:comments-comments-collection" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item">Comments Collection</a><a href="#page:comments,header:comments-comments-collection-get" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span><span class="indent">List All Comments</span></a><a href="#page:comments,header:comments-comments-collection-post" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-success"><i class="fa fa-plus"></i></span><span class="indent">Create a Comment</span></a><a href="#page:comments,header:comments-creation" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item">Creation</a><a href="#page:comments,header:comments-creation-get" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span><span class="indent">Retrieve a Comment</span></a><a href="#page:comments,header:comments-creation-put" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-warning"><i class="fa fa-pencil"></i></span><span class="indent">Update a Creation</span></a><a href="#page:comments,header:comments-creation-delete" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-danger"><i class="fa fa-times"></i></span><span class="indent">Delete a Creation</span></a><a href="#page:comments,header:comments-get-comment's-creator" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span>GET Comment's creator</a></div></div><div class="list-group"><a data-toggle="" data-target="#page:groups-menu" href="#page:groups" class="list-group-item heading collapsed">Groups</a><div id="page:groups-menu"><a href="#page:groups,header:groups-groups-collection" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item">Groups Collection</a><a href="#page:groups,header:groups-groups-collection-get" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span><span class="indent">List All Groups</span></a><a href="#page:groups,header:groups-groups-collection-post" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-success"><i class="fa fa-plus"></i></span><span class="indent">Create a Group</span></a><a href="#page:groups,header:groups-group" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item">Group</a><a href="#page:groups,header:groups-group-get" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span><span class="indent">Retrieve a Group</span></a><a href="#page:groups,header:groups-group-put" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-warning"><i class="fa fa-pencil"></i></span><span class="indent">Update a Group</span></a><a href="#page:groups,header:groups-group-delete" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-danger"><i class="fa fa-times"></i></span><span class="indent">Delete a Group</span></a><a href="#page:groups,header:groups-get-group's-members" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span>GET Group's members</a><a href="#page:groups,header:groups-get-group's-creations" style="border-top-left-radius: 0; border-top-right-radius: 0" class="list-group-item"><span class="badge alert-info"><i class="fa fa-arrow-down"></i></span>GET Group's creations</a></div></div></nav></div><div class="col-md-8"><div data-bind="visible: page() == 'home'"><header><div class="page-header"><h1 id="top">orphee_api</h1></div></header><div class="description"><p>Orphee API is an api for the project Orphee : <a href="https://github.com/Orphee3">https://github.com/Orphee3</a></p>
+<p>«Orphée» is a smartphone application enabling you to create and edit music in a fun and intuitive manner, alone or with friends and to share your musical creations with the user community or selected members. It is also possible, if authorized by the composer, to modify someone else’s music to add your personal touch.</p>
+</div><a href="#page:users" class="btn btn-default pull-right">Next&nbsp;<i class="fa fa-arrow-circle-right"></i></a><div class="clearfix"></div><hr></div><div data-bind="visible: page() == 'users', style: {marginTop: page() == 'users' ? '38px' : ''}"><div class="panel panel-default"><div class="panel-heading"><h3 id="users">Users&nbsp;<a href="#page:users"><i class="fa fa-link"></i></a></h3></div><div class="panel-body"><p>Users related resources of the <strong>Orphee API</strong></p>
+<h4 id="users-users-collection">Users Collection&nbsp;<a href="#page:users,header:users-users-collection"><i class="fa fa-link"></i></a></h4><section id="users-users-collection-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">List all Users</span></div><div style="float:left"><a href="#page:users,header:users-users-collection-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/user{?offset}{?size}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>offset</dt><dd><code>number</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>7</span></span><p>The starting point of the user to return.</p>
+</dd><dt>size</dt><dd><code>number</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>15</span></span><p>The maximum number of results to return.</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#8224d81d9ae8b8633056702f585c2104" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="8224d81d9ae8b8633056702f585c2104" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>[
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"eric"</span></span>,
+        "<span class="hljs-attribute">username</span>": <span class="hljs-value"><span class="hljs-string">"superphung"</span>
+    </span>},
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"lol"</span></span>,
+        "<span class="hljs-attribute">username</span>": <span class="hljs-value"><span class="hljs-string">"libar"</span>
+    </span>}
+]
+</code></pre></li></ul></section><section id="users-users-collection-post" class="panel panel-success"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Create a User</span></div><div style="float:left"><a href="#page:users,header:users-users-collection-post" class="btn btn-xs btn-success">POST</a></div><div style="overflow:hidden"><code>/api/user{?offset}{?size}</code></div></div><ul class="list-group"><li class="list-group-item"><strong>Request</strong><a data-toggle="collapse" data-target="#4d18c801bd6d299f03e7073a6a620f34" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="4d18c801bd6d299f03e7073a6a620f34" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"eric"</span></span>,
+    "<span class="hljs-attribute">username</span>": <span class="hljs-value"><span class="hljs-string">"superphung"</span></span>,
+    "<span class="hljs-attribute">password</span>": <span class="hljs-value"><span class="hljs-string">"superphung"</span>
+</span>}
+</code></pre></li><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>201</code></strong><a data-toggle="collapse" data-target="#1ae031411b6de6efad336f49dffdce39" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="1ae031411b6de6efad336f49dffdce39" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code><span class="hljs-collection">{ <span class="hljs-string">"user created"</span> }</span>
+</code></pre></li></ul></section><h4 id="users-user">User&nbsp;<a href="#page:users,header:users-user"><i class="fa fa-link"></i></a></h4><section id="users-user-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrieve a User</span></div><div style="float:left"><a href="#page:users,header:users-user-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/user/{id}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the user</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#72c845a5620ceefcaf93d2d461ae4d05" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="72c845a5620ceefcaf93d2d461ae4d05" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{ "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>, "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"eric"</span></span>, "<span class="hljs-attribute">username</span>": <span class="hljs-value"><span class="hljs-string">"superphung"</span> </span>}
+</code></pre></li></ul></section><section id="users-user-put" class="panel panel-warning"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Update a User</span></div><div style="float:left"><a href="#page:users,header:users-user-put" class="btn btn-xs btn-warning">PUT</a></div><div style="overflow:hidden"><code>/api/user/{id}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the user</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Request</strong><a data-toggle="collapse" data-target="#1f5e9b65c83d003f1994da1d0042fe47" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="1f5e9b65c83d003f1994da1d0042fe47" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"toto"</span>
+</span>}
+</code></pre></li><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#65848d40ef64b410417da3e95772e4eb" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="65848d40ef64b410417da3e95772e4eb" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"toto"</span>
+</span>}
+</code></pre></li></ul></section><section id="users-user-delete" class="panel panel-danger"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Delete a User</span></div><div style="float:left"><a href="#page:users,header:users-user-delete" class="btn btn-xs btn-danger">DELETE</a></div><div style="overflow:hidden"><code>/api/user/{id}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the user</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#141c22a8500d6e5d8593454aea0e46d0" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="141c22a8500d6e5d8593454aea0e46d0" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code><span class="hljs-collection">{ <span class="hljs-string">"user deleted"</span> }</span>
+</code></pre></li></ul></section><h4 id="users-get-user's-creations">GET User's creations&nbsp;<a href="#page:users,header:users-get-user's-creations"><i class="fa fa-link"></i></a></h4><section id="users-get-user's-creations-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrive User's creations</span></div><div style="float:left"><a href="#page:users,header:users-get-user's-creations-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/user/{id}/creation</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the user</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#d46ea7b3afb2a59c1fbaf8cc27de3c24" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="d46ea7b3afb2a59c1fbaf8cc27de3c24" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>[
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"creation1"</span></span>,
+        "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 12 2015 17:49:00 GMT+0800 (Chine)"</span></span>,
+        "<span class="hljs-attribute">creator</span>": <span class="hljs-value">[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>]</span>,
+        "<span class="hljs-attribute">nbLikes</span>": <span class="hljs-value"><span class="hljs-number">50</span></span>,
+        "<span class="hljs-attribute">comments</span>": <span class="hljs-value">[]
+    </span>},
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"creation2"</span></span>,
+        "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 12 2015 17:58:00 GMT+0800 (Chine)"</span></span>,
+        "<span class="hljs-attribute">creator</span>": <span class="hljs-value">[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>]</span>,
+        "<span class="hljs-attribute">nbLikes</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+        "<span class="hljs-attribute">comments</span>": <span class="hljs-value">[]
+    </span>}
+]
+</code></pre></li></ul></section><h4 id="users-get-user's-group">GET User's group&nbsp;<a href="#page:users,header:users-get-user's-group"><i class="fa fa-link"></i></a></h4><section id="users-get-user's-group-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrive User's group</span></div><div style="float:left"><a href="#page:users,header:users-get-user's-group-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/user/{id}/group</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the user</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#c15b7934677e1bc2e8ce8d68dc464dd3" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="c15b7934677e1bc2e8ce8d68dc464dd3" class="list-group-item panel-collapse collapse"><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 12 2015 17:49:00 GMT+0800 (Chine)"</span></span>,
+    "<span class="hljs-attribute">members</span>": <span class="hljs-value">[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]</span>,
+    "<span class="hljs-attribute">creation</span>": <span class="hljs-value">[<span class="hljs-number">56</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>]
+</span>}
+</code></pre></li></ul></section><h4 id="users-get-user's-likes">Get User's likes&nbsp;<a href="#page:users,header:users-get-user's-likes"><i class="fa fa-link"></i></a></h4><section id="users-get-user's-likes-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrive User's likes</span></div><div style="float:left"><a href="#page:users,header:users-get-user's-likes-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/user/{id}/likes</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the user</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#3826baf4b922dc0678b42e135eb9cc3d" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="3826baf4b922dc0678b42e135eb9cc3d" class="list-group-item panel-collapse collapse"><h5>Body</h5><pre><code>[
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 12 2015 17:49:00 GMT+0800 (Chine)"</span></span>,
+        "<span class="hljs-attribute">creator</span>": <span class="hljs-value">[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>]</span>,
+        "<span class="hljs-attribute">nbLikes</span>": <span class="hljs-value"><span class="hljs-number">50</span></span>,
+        "<span class="hljs-attribute">comments</span>": <span class="hljs-value">[]
+    </span>}
+]
+</code></pre></li></ul></section><h4 id="users-get-user's-comments">Get User's comments&nbsp;<a href="#page:users,header:users-get-user's-comments"><i class="fa fa-link"></i></a></h4><section id="users-get-user's-comments-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrive User's comments</span></div><div style="float:left"><a href="#page:users,header:users-get-user's-comments-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/user/{id}/comments</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the user</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#f2e0068437ebea8e6c380d1e9955d4e4" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="f2e0068437ebea8e6c380d1e9955d4e4" class="list-group-item panel-collapse collapse"><h5>Body</h5><pre><code>[
+    {
+        "<span class="hljs-attribute">creator</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 12 2015 17:49:00 GMT+0800 (Chine)"</span></span>,
+        "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"this is a text"</span>
+    </span>}
+]
+</code></pre></li></ul></section><h4 id="users-get-user's-friends">Get User's friends&nbsp;<a href="#page:users,header:users-get-user's-friends"><i class="fa fa-link"></i></a></h4><section id="users-get-user's-friends-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrive User's friends</span></div><div style="float:left"><a href="#page:users,header:users-get-user's-friends-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/user/{id}/friends</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the user</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#a29a9d52055781a4e689c509ca030e12" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="a29a9d52055781a4e689c509ca030e12" class="list-group-item panel-collapse collapse"><h5>Body</h5><pre><code>[
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"eric"</span></span>,
+        "<span class="hljs-attribute">username</span>": <span class="hljs-value"><span class="hljs-string">"superphung"</span>
+    </span>},
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"lol"</span></span>,
+        "<span class="hljs-attribute">username</span>": <span class="hljs-value"><span class="hljs-string">"libar"</span>
+    </span>}
+]
+</code></pre></li></ul></section></div></div><a href="#page:creations" class="btn btn-default pull-right">Next&nbsp;<i class="fa fa-arrow-circle-right"></i></a><a href="#" class="btn btn-default"><i class="fa fa-arrow-circle-left"></i> Previous</a><div class="clearfix"></div><hr></div><div data-bind="visible: page() == 'creations', style: {marginTop: page() == 'creations' ? '38px' : ''}"><div class="panel panel-default"><div class="panel-heading"><h3 id="creations">Creations&nbsp;<a href="#page:creations"><i class="fa fa-link"></i></a></h3></div><div class="panel-body"><p>Creations related resources of the <strong>Orphee API</strong></p>
+<h4 id="creations-creations-collection">Creations Collection&nbsp;<a href="#page:creations,header:creations-creations-collection"><i class="fa fa-link"></i></a></h4><section id="creations-creations-collection-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">List All Creations</span></div><div style="float:left"><a href="#page:creations,header:creations-creations-collection-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/creation{?offset}{?size}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>offset</dt><dd><code>number</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>7</span></span><p>The starting point of the creation to return.</p>
+</dd><dt>size</dt><dd><code>number</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>15</span></span><p>The maximum number of results to return.</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#6e335d7f1e00240e0d8e0fd0503c012f" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="6e335d7f1e00240e0d8e0fd0503c012f" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>[
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"creation1"</span></span>,
+        "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 12 2015 17:49:00 GMT+0800 (Chine)"</span></span>,
+        "<span class="hljs-attribute">creator</span>": <span class="hljs-value">[<span class="hljs-number">1</span>]</span>,
+        "<span class="hljs-attribute">nbLikes</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">comments</span>": <span class="hljs-value">[]
+    </span>},
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"creation2"</span></span>,
+        "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 16 2015 12:15:00 GMT+0800 (Chine)"</span></span>,
+        "<span class="hljs-attribute">creator</span>": <span class="hljs-value">[<span class="hljs-number">2</span>,<span class="hljs-number">3</span>]</span>,
+        "<span class="hljs-attribute">nbLikes</span>": <span class="hljs-value"><span class="hljs-number">32</span></span>,
+        "<span class="hljs-attribute">comments</span>": <span class="hljs-value">[<span class="hljs-number">12</span>, <span class="hljs-number">58</span>]
+    </span>}
+]
+</code></pre></li></ul></section><section id="creations-creations-collection-post" class="panel panel-success"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Create a Creation</span></div><div style="float:left"><a href="#page:creations,header:creations-creations-collection-post" class="btn btn-xs btn-success">POST</a></div><div style="overflow:hidden"><code>/api/creation{?offset}{?size}</code></div></div><ul class="list-group"><li class="list-group-item"><strong>Request</strong><a data-toggle="collapse" data-target="#31ba55288bdc9b886e783395cb88986f" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="31ba55288bdc9b886e783395cb88986f" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"creation"</span></span>,
+    "<span class="hljs-attribute">creator</span>": <span class="hljs-value">[<span class="hljs-number">12</span>, <span class="hljs-number">56</span>]
+</span>}
+</code></pre></li><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>201</code></strong><a data-toggle="collapse" data-target="#d9b15e4008b06464255e381d7b66dcfb" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="d9b15e4008b06464255e381d7b66dcfb" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code><span class="hljs-collection">{ <span class="hljs-string">"creation created"</span> }</span>
+</code></pre></li></ul></section><h4 id="creations-creation">Creation&nbsp;<a href="#page:creations,header:creations-creation"><i class="fa fa-link"></i></a></h4><section id="creations-creation-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrieve a Creation</span></div><div style="float:left"><a href="#page:creations,header:creations-creation-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/creation/{id}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the creation</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#639f5222cdce6ae98377d2a3147dd8e2" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="639f5222cdce6ae98377d2a3147dd8e2" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{ "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>, "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"creation1"</span></span>, "<span class="hljs-attribute">creator</span>": <span class="hljs-value">[<span class="hljs-number">4</span>,<span class="hljs-number">8</span>] </span>}
+</code></pre></li></ul></section><section id="creations-creation-put" class="panel panel-warning"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Update a Creation</span></div><div style="float:left"><a href="#page:creations,header:creations-creation-put" class="btn btn-xs btn-warning">PUT</a></div><div style="overflow:hidden"><code>/api/creation/{id}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the creation</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Request</strong><a data-toggle="collapse" data-target="#bef1dca1e642963ddde03eb07f51abae" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="bef1dca1e642963ddde03eb07f51abae" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"myNewTitle"</span>
+</span>}
+</code></pre></li><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#54efe3af972a849fd2c8326c969b5606" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="54efe3af972a849fd2c8326c969b5606" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"myNewTitle"</span></span>,
+    "<span class="hljs-attribute">creator</span>": <span class="hljs-value">[<span class="hljs-number">4</span>,<span class="hljs-number">8</span>]
+</span>}
+</code></pre></li></ul></section><section id="creations-creation-delete" class="panel panel-danger"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Delete a Creation</span></div><div style="float:left"><a href="#page:creations,header:creations-creation-delete" class="btn btn-xs btn-danger">DELETE</a></div><div style="overflow:hidden"><code>/api/creation/{id}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the creation</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#861bfd18b19f21d8f8e30154f93687a8" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="861bfd18b19f21d8f8e30154f93687a8" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code><span class="hljs-collection">{ <span class="hljs-string">"creation deleted"</span> }</span>
+</code></pre></li></ul></section><h4 id="creations-get-creation's-creator">GET Creation's creator&nbsp;<a href="#page:creations,header:creations-get-creation's-creator"><i class="fa fa-link"></i></a></h4><section id="creations-get-creation's-creator-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrive Creation's creator</span></div><div style="float:left"><a href="#page:creations,header:creations-get-creation's-creator-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/creation/{id}/creator</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the creation</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#4cf9130e56ea8bce975047227e920bec" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="4cf9130e56ea8bce975047227e920bec" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>[
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"user1"</span></span>,
+        "<span class="hljs-attribute">username</span>": <span class="hljs-value"><span class="hljs-string">"user1"</span></span>,
+        "<span class="hljs-attribute">creation</span>": <span class="hljs-value">[<span class="hljs-number">61</span>, <span class="hljs-number">82</span>]
+    </span>},
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"user2"</span></span>,
+        "<span class="hljs-attribute">username</span>": <span class="hljs-value"><span class="hljs-string">"user2"</span></span>,
+        "<span class="hljs-attribute">creation</span>": <span class="hljs-value">[<span class="hljs-number">12</span>, <span class="hljs-number">21</span>]
+    </span>}
+]
+</code></pre></li></ul></section><h4 id="creations-get-user's-group">GET User's group&nbsp;<a href="#page:creations,header:creations-get-user's-group"><i class="fa fa-link"></i></a></h4><section id="creations-get-user's-group-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrive Creation's group</span></div><div style="float:left"><a href="#page:creations,header:creations-get-user's-group-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/creation/{id}/group</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the creation</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#6e98c8a78250bd224b20b720148ad74e" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="6e98c8a78250bd224b20b720148ad74e" class="list-group-item panel-collapse collapse"><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 12 2015 17:49:00 GMT+0800 (Chine)"</span></span>,
+    "<span class="hljs-attribute">members</span>": <span class="hljs-value">[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]</span>,
+    "<span class="hljs-attribute">creation</span>": <span class="hljs-value">[<span class="hljs-number">56</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>]
+</span>}
+</code></pre></li></ul></section><h4 id="creations-get-user's-likes">Get User's likes&nbsp;<a href="#page:creations,header:creations-get-user's-likes"><i class="fa fa-link"></i></a></h4><section id="creations-get-user's-likes-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrive Creation's comments</span></div><div style="float:left"><a href="#page:creations,header:creations-get-user's-likes-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/creation/{id}/comments</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the creation</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#5c5e0ae028453705ebc9962c6ef35f10" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="5c5e0ae028453705ebc9962c6ef35f10" class="list-group-item panel-collapse collapse"><h5>Body</h5><pre><code>[
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 12 2015 17:49:00 GMT+0800 (Chine)"</span></span>,
+        "<span class="hljs-attribute">creator</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"this is a message"</span>
+    </span>}
+]
+</code></pre></li></ul></section></div></div><a href="#page:comments" class="btn btn-default pull-right">Next&nbsp;<i class="fa fa-arrow-circle-right"></i></a><a href="#page:users" class="btn btn-default"><i class="fa fa-arrow-circle-left"></i> Previous</a><div class="clearfix"></div><hr></div><div data-bind="visible: page() == 'comments', style: {marginTop: page() == 'comments' ? '38px' : ''}"><div class="panel panel-default"><div class="panel-heading"><h3 id="comments">Comments&nbsp;<a href="#page:comments"><i class="fa fa-link"></i></a></h3></div><div class="panel-body"><p>Comments related resources of the <strong>Orphee API</strong></p>
+<h4 id="comments-comments-collection">Comments Collection&nbsp;<a href="#page:comments,header:comments-comments-collection"><i class="fa fa-link"></i></a></h4><section id="comments-comments-collection-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">List All Comments</span></div><div style="float:left"><a href="#page:comments,header:comments-comments-collection-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/comment{?offset}{?size}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>offset</dt><dd><code>number</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>7</span></span><p>The starting point of the comment to return.</p>
+</dd><dt>size</dt><dd><code>number</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>15</span></span><p>The maximum number of results to return.</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#b770f8ada00b18c0343385e947dada61" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="b770f8ada00b18c0343385e947dada61" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>[
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 12 2015 17:49:00 GMT+0800 (Chine)"</span></span>,
+        "<span class="hljs-attribute">creator</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"this is the first comment"</span>
+    </span>},
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+        "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 16 2015 12:15:00 GMT+0800 (Chine)"</span></span>,
+        "<span class="hljs-attribute">creator</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"this is the second comment"</span>
+    </span>}
+]
+</code></pre></li></ul></section><section id="comments-comments-collection-post" class="panel panel-success"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Create a Comment</span></div><div style="float:left"><a href="#page:comments,header:comments-comments-collection-post" class="btn btn-xs btn-success">POST</a></div><div style="overflow:hidden"><code>/api/comment{?offset}{?size}</code></div></div><ul class="list-group"><li class="list-group-item"><strong>Request</strong><a data-toggle="collapse" data-target="#04813308c8b4bf0508c16fcf24bb6063" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="04813308c8b4bf0508c16fcf24bb6063" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">creator</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"this is a comment"</span>
+</span>}
+</code></pre></li><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>201</code></strong><a data-toggle="collapse" data-target="#41f0a7f2c788861b250c282c74f60c47" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="41f0a7f2c788861b250c282c74f60c47" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code><span class="hljs-collection">{ <span class="hljs-string">"comment created"</span> }</span>
+</code></pre></li></ul></section><h4 id="comments-creation">Creation&nbsp;<a href="#page:comments,header:comments-creation"><i class="fa fa-link"></i></a></h4><section id="comments-creation-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrieve a Comment</span></div><div style="float:left"><a href="#page:comments,header:comments-creation-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/comment/{id}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the comment</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#5ba306f4528f33cc35942a6536553547" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="5ba306f4528f33cc35942a6536553547" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{ "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>, "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 16 2015 12:15:00 GMT+0800 (Chine)"</span></span>, "<span class="hljs-attribute">creator</span>": <span class="hljs-value"><span class="hljs-number">4</span></span>, "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"this is a comment"</span> </span>}
+</code></pre></li></ul></section><section id="comments-creation-put" class="panel panel-warning"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Update a Creation</span></div><div style="float:left"><a href="#page:comments,header:comments-creation-put" class="btn btn-xs btn-warning">PUT</a></div><div style="overflow:hidden"><code>/api/comment/{id}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the comment</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Request</strong><a data-toggle="collapse" data-target="#b96353fa61b1c13cade29d57615cb208" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="b96353fa61b1c13cade29d57615cb208" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"my new message"</span>
+</span>}
+</code></pre></li><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#f60b6b44ec9a03f5000b3c72e880d48c" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="f60b6b44ec9a03f5000b3c72e880d48c" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 16 2015 12:15:00 GMT+0800 (Chine)"</span></span>,
+    "<span class="hljs-attribute">creator</span>": <span class="hljs-value"><span class="hljs-number">4</span></span>,
+    "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"my new message"</span>
+</span>}
+</code></pre></li></ul></section><section id="comments-creation-delete" class="panel panel-danger"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Delete a Creation</span></div><div style="float:left"><a href="#page:comments,header:comments-creation-delete" class="btn btn-xs btn-danger">DELETE</a></div><div style="overflow:hidden"><code>/api/comment/{id}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the comment</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#ec4f5214b8183577e1bbc6e19a8fcccb" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="ec4f5214b8183577e1bbc6e19a8fcccb" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code><span class="hljs-collection">{ <span class="hljs-string">"comment deleted"</span> }</span>
+</code></pre></li></ul></section><h4 id="comments-get-comment's-creator">GET Comment's creator&nbsp;<a href="#page:comments,header:comments-get-comment's-creator"><i class="fa fa-link"></i></a></h4><section id="comments-get-comment's-creator-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrive Comment's creator</span></div><div style="float:left"><a href="#page:comments,header:comments-get-comment's-creator-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/comment/{id}/creator</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the comment</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#92d5d17f61cd69a3e06d4791bc4bcbf3" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="92d5d17f61cd69a3e06d4791bc4bcbf3" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"user1"</span></span>,
+    "<span class="hljs-attribute">username</span>": <span class="hljs-value"><span class="hljs-string">"user1"</span></span>,
+    "<span class="hljs-attribute">creation</span>": <span class="hljs-value">[<span class="hljs-number">61</span>, <span class="hljs-number">82</span>]</span>,
+    "<span class="hljs-attribute">comments</span>": <span class="hljs-value">[<span class="hljs-number">1</span>]
+</span>}
+</code></pre></li></ul></section></div></div><a href="#page:groups" class="btn btn-default pull-right">Next&nbsp;<i class="fa fa-arrow-circle-right"></i></a><a href="#page:creations" class="btn btn-default"><i class="fa fa-arrow-circle-left"></i> Previous</a><div class="clearfix"></div><hr></div><div data-bind="visible: page() == 'groups', style: {marginTop: page() == 'groups' ? '38px' : ''}"><div class="panel panel-default"><div class="panel-heading"><h3 id="groups">Groups&nbsp;<a href="#page:groups"><i class="fa fa-link"></i></a></h3></div><div class="panel-body"><p>Groups related resources of the <strong>Orphee API</strong></p>
+<h4 id="groups-groups-collection">Groups Collection&nbsp;<a href="#page:groups,header:groups-groups-collection"><i class="fa fa-link"></i></a></h4><section id="groups-groups-collection-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">List All Groups</span></div><div style="float:left"><a href="#page:groups,header:groups-groups-collection-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/group{?offset}{?size}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>offset</dt><dd><code>number</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>7</span></span><p>The starting point of the group to return.</p>
+</dd><dt>size</dt><dd><code>number</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>15</span></span><p>The maximum number of results to return.</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#2e80c0fbe7300ea150f74447d59bc586" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="2e80c0fbe7300ea150f74447d59bc586" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>[
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"group1"</span></span>,
+        "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 12 2015 17:49:00 GMT+0800 (Chine)"</span></span>,
+        "<span class="hljs-attribute">members</span>": <span class="hljs-value">[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>]</span>,
+        "<span class="hljs-attribute">creation</span>": <span class="hljs-value">[<span class="hljs-number">56</span>, <span class="hljs-number">89</span>]
+    </span>},
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"group2"</span></span>,
+        "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 16 2015 12:15:00 GMT+0800 (Chine)"</span></span>,
+        "<span class="hljs-attribute">members</span>": <span class="hljs-value">[<span class="hljs-number">3</span>, <span class="hljs-number">4</span>]</span>,
+        "<span class="hljs-attribute">creation</span>": <span class="hljs-value">[<span class="hljs-number">12</span>, <span class="hljs-number">24</span>]
+    </span>}
+]
+</code></pre></li></ul></section><section id="groups-groups-collection-post" class="panel panel-success"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Create a Group</span></div><div style="float:left"><a href="#page:groups,header:groups-groups-collection-post" class="btn btn-xs btn-success">POST</a></div><div style="overflow:hidden"><code>/api/group{?offset}{?size}</code></div></div><ul class="list-group"><li class="list-group-item"><strong>Request</strong><a data-toggle="collapse" data-target="#32a0555a8c5b1010bc67a454cc68239d" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="32a0555a8c5b1010bc67a454cc68239d" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"my group name"</span></span>,
+    "<span class="hljs-attribute">members</span>": <span class="hljs-value">[<span class="hljs-number">1</span>]
+</span>}
+</code></pre></li><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>201</code></strong><a data-toggle="collapse" data-target="#b26b033926c36e4c2e8573b67e8390fd" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="b26b033926c36e4c2e8573b67e8390fd" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code><span class="hljs-collection">{ <span class="hljs-string">"group created"</span> }</span>
+</code></pre></li></ul></section><h4 id="groups-group">Group&nbsp;<a href="#page:groups,header:groups-group"><i class="fa fa-link"></i></a></h4><section id="groups-group-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrieve a Group</span></div><div style="float:left"><a href="#page:groups,header:groups-group-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/group/{id}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the group</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#03d09dd9adaf961e723f0b3019ffce18" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="03d09dd9adaf961e723f0b3019ffce18" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{ "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>, "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"group number 1"</span></span>, "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 16 2015 12:15:00 GMT+0800 (Chine)"</span></span>, "<span class="hljs-attribute">members</span>": <span class="hljs-value">[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>]</span>, "<span class="hljs-attribute">creation</span>": <span class="hljs-value">[<span class="hljs-number">56</span>, <span class="hljs-number">89</span>] </span>}
+</code></pre></li></ul></section><section id="groups-group-put" class="panel panel-warning"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Update a Group</span></div><div style="float:left"><a href="#page:groups,header:groups-group-put" class="btn btn-xs btn-warning">PUT</a></div><div style="overflow:hidden"><code>/api/group/{id}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the group</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Request</strong><a data-toggle="collapse" data-target="#e3a686f4964a1c4bb19ce7c5ce2c55e2" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="e3a686f4964a1c4bb19ce7c5ce2c55e2" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">members</span>": <span class="hljs-value">[<span class="hljs-number">5</span>,<span class="hljs-number">8</span>,<span class="hljs-number">10</span>]
+</span>}
+</code></pre></li><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#58353cc3384f004cc5af36acf9aae041" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="58353cc3384f004cc5af36acf9aae041" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>{
+    "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"group number 1"</span></span>,
+    "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 16 2015 12:15:00 GMT+0800 (Chine)"</span></span>,
+    "<span class="hljs-attribute">members</span>": <span class="hljs-value">[<span class="hljs-number">5</span>,<span class="hljs-number">8</span>,<span class="hljs-number">10</span>]</span>,
+    "<span class="hljs-attribute">creation</span>": <span class="hljs-value">[<span class="hljs-number">56</span>, <span class="hljs-number">89</span>]
+</span>}
+</code></pre></li></ul></section><section id="groups-group-delete" class="panel panel-danger"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Delete a Group</span></div><div style="float:left"><a href="#page:groups,header:groups-group-delete" class="btn btn-xs btn-danger">DELETE</a></div><div style="overflow:hidden"><code>/api/group/{id}</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the group</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#211b123fa860272a4fd04e5ad0ddb5d6" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="211b123fa860272a4fd04e5ad0ddb5d6" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code><span class="hljs-collection">{ <span class="hljs-string">"group deleted"</span> }</span>
+</code></pre></li></ul></section><h4 id="groups-get-group's-members">GET Group's members&nbsp;<a href="#page:groups,header:groups-get-group's-members"><i class="fa fa-link"></i></a></h4><section id="groups-get-group's-members-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrive Group's members</span></div><div style="float:left"><a href="#page:groups,header:groups-get-group's-members-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/group/{id}/members</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the group</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#85323220de1f1d1a551ddabac782cbad" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="85323220de1f1d1a551ddabac782cbad" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>[
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"user1"</span></span>,
+        "<span class="hljs-attribute">username</span>": <span class="hljs-value"><span class="hljs-string">"user1"</span></span>,
+        "<span class="hljs-attribute">creation</span>": <span class="hljs-value">[<span class="hljs-number">61</span>, <span class="hljs-number">82</span>]
+    </span>},
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"user2"</span></span>,
+        "<span class="hljs-attribute">username</span>": <span class="hljs-value"><span class="hljs-string">"user2"</span></span>,
+        "<span class="hljs-attribute">creation</span>": <span class="hljs-value">[<span class="hljs-number">12</span>, <span class="hljs-number">21</span>]
+    </span>}
+]
+</code></pre></li></ul></section><h4 id="groups-get-group's-creations">GET Group's creations&nbsp;<a href="#page:groups,header:groups-get-group's-creations"><i class="fa fa-link"></i></a></h4><section id="groups-get-group's-creations-get" class="panel panel-info"><div class="panel-heading"><div style="float:right"><span style="text-transform: lowercase">Retrive Group's creations</span></div><div style="float:left"><a href="#page:groups,header:groups-get-group's-creations-get" class="btn btn-xs btn-info">GET</a></div><div style="overflow:hidden"><code>/api/group/{id}/creation</code></div></div><ul class="list-group"><li class="list-group-item bg-default"><strong>Parameters</strong></li><li class="list-group-item"><dl class="dl-horizontal"><dt>id</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>id of the group</p>
+</dd></dl></li></ul><ul class="list-group"><li class="list-group-item"><strong>Response&nbsp;&nbsp;<code>200</code></strong><a data-toggle="collapse" data-target="#e9c6b283573c6426ab37ed067e2a0376" class="pull-right collapsed"><span class="closed">Show</span><span class="open">Hide</span></a></li><li id="e9c6b283573c6426ab37ed067e2a0376" class="list-group-item panel-collapse collapse"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br></code></pre><h5>Body</h5><pre><code>[
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"creation1"</span></span>,
+        "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 12 2015 17:49:00 GMT+0800 (Chine)"</span></span>,
+        "<span class="hljs-attribute">creator</span>": <span class="hljs-value">[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>]</span>,
+        "<span class="hljs-attribute">nbLikes</span>": <span class="hljs-value"><span class="hljs-number">50</span></span>,
+        "<span class="hljs-attribute">comments</span>": <span class="hljs-value">[]
+    </span>},
+    {
+        "<span class="hljs-attribute">_id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+        "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"creation2"</span></span>,
+        "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"Thu Mar 12 2015 17:58:00 GMT+0800 (Chine)"</span></span>,
+        "<span class="hljs-attribute">creator</span>": <span class="hljs-value">[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>]</span>,
+        "<span class="hljs-attribute">nbLikes</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+        "<span class="hljs-attribute">comments</span>": <span class="hljs-value">[]
+    </span>}
+]
+</code></pre></li></ul></section></div></div><a href="#page:comments" class="btn btn-default"><i class="fa fa-arrow-circle-left"></i> Previous</a><div class="clearfix"></div><hr></div></div></div></div><p style="text-align: center;" class="text-muted">Generated by&nbsp;<a href="https://github.com/danielgtaylor/aglio" class="aglio">aglio</a>&nbsp;on 13 Mar 2015</p><div id="localFile" style="display: none; position: absolute; top: 0; left: 0; width: 100%; color: white; background: red; font-size: 150%; text-align: center; padding: 1em;">This page may not display correctly when opened as a local file. Instead, view it from a web server.
+
+</div></body><script src="//code.jquery.com/jquery-1.11.0.min.js"></script><script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script><script>(function() {
+  if (location.protocol === 'file:') {
+    document.getElementById('localFile').style.display = 'block';
+  }
+
+}).call(this);
+</script><script>(function() {
+  $('table').addClass('table');
+
+}).call(this);
+</script><script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"></script><script>(function() {
+  var App;
+
+  App = (function() {
+    function App() {
+      this.page = ko.observable('home');
+    }
+
+    return App;
+
+  })();
+
+  window.app = new App();
+
+  window.onhashchange = function() {
+    var i, len, parts, ref, v, vars;
+    vars = {};
+    ref = location.hash.substr(1).split(',');
+    for (i = 0, len = ref.length; i < len; i++) {
+      v = ref[i];
+      parts = v.split(':');
+      vars[parts[0]] = parts[1];
+    }
+    window.app.page(vars.page || 'home');
+    if (vars.header) {
+      return $("#" + vars.header)[0].scrollIntoView(true);
+    } else {
+      return window.scrollTo(0, 0);
+    }
+  };
+
+  ko.applyBindings(window.app);
+
+  window.onhashchange();
+
+}).call(this);
+</script></html>
