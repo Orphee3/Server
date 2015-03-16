@@ -66,7 +66,12 @@ exports.update = function(req, res) {
             deferred.reject(errMod.getError500(err));
         else {
             if (req.body.message) comment.message = req.body.message;
-            deferred.resolve(comment);
+            comment.save(function(err, comment) {
+                if (err)
+                    deferred.reject(errMod.getError500(err));
+                else
+                    deferred.resolve(comment);
+            });
         }
     });
     return deferred.promise;
