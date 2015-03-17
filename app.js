@@ -10,6 +10,7 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var creations = require('./routes/creations');
 var comments = require('./routes/comments');
+var groups = require('./routes/groups');
 
 var app = express();
 
@@ -30,7 +31,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/api', users);
 app.use('/api', creations);
-app.use('/api', comments);
+//app.use('/api', comments);
+app.use('/api', groups);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
