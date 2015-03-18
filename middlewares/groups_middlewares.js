@@ -70,6 +70,10 @@ exports.update = function(req, res) {
         if (err)
             deferred.reject(errMod.getError500(err));
         else {
+            if (group === null) {
+                deferred.resolve(group);
+                return deferred.promise;
+            }
             if (req.body.name) group.name = req.body.name;
             if (req.body.members) group.members = req.body.members;
             if (req.body.creation) group.creation = req.body.creation;

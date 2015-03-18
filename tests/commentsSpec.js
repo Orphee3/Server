@@ -68,7 +68,19 @@ describe('Unit test for comments middleware', function() {
                 });
         });
 
-        it('rejects pull wrong creation', function() {
+        it('resolves pull comment with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.getById(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects pull comment without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
@@ -96,7 +108,19 @@ describe('Unit test for comments middleware', function() {
                 });
         });
 
-        it('rejects getting from a wrong id of comment', function() {
+        it('resolves getting from a comment with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.getCreator(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                })
+        });
+
+        it('rejects getting from a comment without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
@@ -127,7 +151,19 @@ describe('Unit test for comments middleware', function() {
                 });
         });
 
-        it('rejects updating wrong comment', function() {
+        it('resolves updating comment with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.update(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects updating comment without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
@@ -155,7 +191,17 @@ describe('Unit test for comments middleware', function() {
                 });
         });
 
-        it('rejects deleting creation', function() {
+        it('resolves deleting creation with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.delete(req, res))
+                .to.be.fulfilled.then(console.log);
+        });
+
+        it('rejects deleting creation without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456

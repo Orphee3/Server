@@ -92,8 +92,12 @@ exports.update = function(req, res) {
            deferred.reject(errMod.getError500(err));
         }
         else {
+            if (user === null) {
+                deferred.resolve(user);
+                return deferred.promise;
+            }
             if (req.body.name) user.name = req.body.name;
-            if (req.body.username) user.name = req.body.username; //@TODO won't work if username already exist
+            if (req.body.username) user.username = req.body.username; //@TODO won't work if username already exist
             if (req.body.password) user.password = req.body.password;
             if (req.body.creation) user.creation = req.body.creation;
             if (req.body.group) user.group = req.body.group;

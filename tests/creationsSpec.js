@@ -69,7 +69,19 @@ describe('Unit test for creations middleware', function() {
                 })
         });
 
-        it('rejects pull wrong creation', function() {
+        it('resolves pull creation with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.getById(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects pull creation without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
@@ -102,7 +114,19 @@ describe('Unit test for creations middleware', function() {
             });
         });
 
-        it('rejects getting from a wrong id of creation', function() {
+        it('resolves getting from a creation with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.getCreator(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects getting from a creation without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
@@ -133,7 +157,19 @@ describe('Unit test for creations middleware', function() {
                 });
         });
 
-        it('rejects getting from a wrong id of creation', function() {
+        it('resolves getting from a creation with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.getCreatorGroup(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects getting from a creation without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
@@ -167,7 +203,19 @@ describe('Unit test for creations middleware', function() {
                });
        });
 
-        it('rejects getting from a wrong id of creation', function() {
+        it('resolves getting from a comment with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.getComments(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects getting from a creation without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
@@ -193,7 +241,19 @@ describe('Unit test for creations middleware', function() {
                 });
         });
 
-        it('rejects updating wrong creation', function() {
+        it('resolves updating creation with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.update(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects updating creation without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
@@ -224,7 +284,17 @@ describe('Unit test for creations middleware', function() {
                 })
         });
 
-        it('rejects deleting creation', function() {
+        it('resolves deleting creation with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.delete(req, res))
+                .to.be.fulfilled.then(console.log);
+        });
+
+        it('rejects deleting creation without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456

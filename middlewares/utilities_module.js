@@ -13,15 +13,23 @@ exports.getModelRefInfo = function(model, id, field) {
         .exec(function(err, data) {
             if (err)
                 deferred.reject(errMod.getError500(err));
-            else
-                deferred.resolve(data[field]);
+            else {
+                if (data === null)
+                    deferred.resolve(data);
+                else
+                    deferred.resolve(data[field]);
+            }
         });
     return deferred.promise;
 };
 
 exports.useMiddleware = function(middleware, req, res, next) {
     middleware(req, res)
-        .then(function(data) {res.send(data);})
+        .then(function(data) {
+            if (data === null)
+                return res.status(204).end();
+            return res.status(200).json(data);
+        })
         .catch(function(err) {res.status(err.status).send(err.message);})
         .done();
 };
