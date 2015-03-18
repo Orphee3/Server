@@ -69,9 +69,19 @@ describe('Unit test for groups middleware', function() {
                 });
         });
 
-        it('rejects pull wrong group', function() {
-            //@TODO 123456 -> err cast, wrong id -> err 204
-            //var idd = new mongoose.Types.ObjectId;
+        it('resolves pull group with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.getById(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects pull group without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
@@ -99,7 +109,19 @@ describe('Unit test for groups middleware', function() {
                 });
         });
 
-        it('rejects getting from a wrong id of group', function() {
+        it('resolves getting from a group with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.getMembers(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects getting from a group without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
@@ -130,7 +152,19 @@ describe('Unit test for groups middleware', function() {
                 });
         });
 
-        it ('rejects getting from a wrong id of group', function() {
+        it('resolves getting from a group with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.getCreation(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it ('rejects getting from a group without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
@@ -161,7 +195,19 @@ describe('Unit test for groups middleware', function() {
                 });
         });
 
-        it('rejects updating wrong group', function() {
+        it('resolves updating a group with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.update(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects updating a group without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
@@ -189,7 +235,17 @@ describe('Unit test for groups middleware', function() {
                 });
         });
 
-        it('rejects deleting group', function() {
+        it('resolves deleting a group with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middleware.delete(req, res))
+                .to.be.fulfilled.then(console.log);
+        });
+
+        it('rejects deleting group without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456

@@ -97,14 +97,26 @@ describe('Unit test for users middlewares', function() {
                 })
         });
 
-        it('rejects pull wrong user', function() {
+        it('resolves pull user with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middlewares.getById(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects pull user without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
                 }
             });
             return chai.expect(middlewares.getById(req, res))
-                .to.be.rejected;
+                .to.be.rejected.then(console.log);
         });
     });
 
@@ -131,14 +143,27 @@ describe('Unit test for users middlewares', function() {
                         });
                 })
         });
-        it('rejects getting from a wrong id of user', function() {
+
+        it('resolves getting from a user with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middlewares.getCreation(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects getting from a user without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
                 }
             });
             return chai.expect(middlewares.getCreation(req, res))
-                .to.be.rejected;
+                .to.be.rejected.then(console.log);
         });
     });
 
@@ -166,14 +191,26 @@ describe('Unit test for users middlewares', function() {
                })
        });
 
-        it('rejects getting from a wrong id of user', function() {
+        it('resolves getting from a user with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middlewares.getGroup(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects getting from a user without an ObjectId', function() {
             req = httpMocks.createRequest({
                params: {
                    id: 123456
                }
             });
             return chai.expect(middlewares.getGroup(req, res))
-                .to.be.rejected;
+                .to.be.rejected.then(console.log);
         });
     });
 
@@ -201,14 +238,26 @@ describe('Unit test for users middlewares', function() {
                 })
         });
 
-        it('rejects getting from a wrong id of user', function() {
+        it('resolves getting from a user with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middlewares.getLikes(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects getting from a user without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
                 }
             });
             return chai.expect(middlewares.getLikes(req, res))
-                .to.be.rejected;
+                .to.be.rejected.then(console.log);
         });
     });
 
@@ -234,14 +283,26 @@ describe('Unit test for users middlewares', function() {
                 });
         });
 
-        it('rejects getting from a wrong id of user', function() {
+        it('resolves getting from a user with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middlewares.getComments(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects getting from a user without an ObjectId', function() {
            req = httpMocks.createRequest({
                params: {
                    id: 123456
                }
            });
             return chai.expect(middlewares.getLikes(req, res))
-                .to.be.rejected;
+                .to.be.rejected.then(console.log);
         });
     });
 
@@ -279,14 +340,26 @@ describe('Unit test for users middlewares', function() {
                 })
         });
 
-        it('rejects getting from a wrong id of user', function() {
+        it('resolves getting from a user with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middlewares.getFriends(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects getting from a user without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
                 }
             });
             return chai.expect(middlewares.getFriends(req, res))
-                .to.be.rejected;
+                .to.be.rejected.then(console.log);
         });
     });
 
@@ -311,7 +384,23 @@ describe('Unit test for users middlewares', function() {
                         });
                 })
         });
-        it('rejects updating wrong user', function() {
+
+        it('resolves update user with a bad id', function() {
+            req = httpMocks.createRequest({
+                param: {
+                    id: new mongoose.Types.ObjectId
+                },
+                body: {
+                    name : 'test failed'
+                }
+            });
+            return chai.expect(middlewares.update(req, res))
+                .to.be.fulfilled.then(function(data) {
+                    console.log(data === null);
+                });
+        });
+
+        it('rejects updating user without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
@@ -321,7 +410,7 @@ describe('Unit test for users middlewares', function() {
                 }
             });
             return chai.expect(middlewares.update(req, res))
-                .to.be.rejected;
+                .to.be.rejected.then(console.log);
         });
         /*it('rejects updating user with existing username', function() {
             return middlewares.getAll(req, res)
@@ -365,14 +454,24 @@ describe('Unit test for users middlewares', function() {
 
         });
 
-        it('rejects deleting user', function() {
+        it('resolves deleting user with a bad id', function() {
+            req = httpMocks.createRequest({
+                params: {
+                    id: new mongoose.Types.ObjectId
+                }
+            });
+            return chai.expect(middlewares.delete(req, res))
+                .to.be.fulfilled.then(console.log);
+        });
+
+        it('rejects deleting user without an ObjectId', function() {
             req = httpMocks.createRequest({
                 params: {
                     id: 123456
                 }
             });
             return chai.expect(middlewares.delete(req, res))
-                .to.be.rejected;
+                .to.be.rejected.then(console.log);
         });
     });
 });

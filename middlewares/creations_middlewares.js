@@ -74,8 +74,12 @@ exports.update = function(req, res) {
         if (err)
             deferred.reject(errMod.getError500(err));
         else {
+            if (creation === null) {
+                deferred.resolve(creation);
+                return deferred.promise;
+            }
             if (req.body.name) creation.name = req.body.name;
-            if(req.body.creator) creation.creator = req.body.creator;
+            if (req.body.creator) creation.creator = req.body.creator;
             if (req.body.creatorGroup) creation.creatorGroup = req.body.creatorGroup;
             if (req.body.nbLikes) creation.nbLikes = req.body.nbLikes;
             if (req.body.comments) creation.comments = req.body.comments;

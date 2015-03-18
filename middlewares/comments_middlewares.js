@@ -65,6 +65,10 @@ exports.update = function(req, res) {
         if (err)
             deferred.reject(errMod.getError500(err));
         else {
+            if (comment === null) {
+                deferred.resolve(comment);
+                return deferred.promise;
+            }
             if (req.body.message) comment.message = req.body.message;
             comment.save(function(err, comment) {
                 if (err)
