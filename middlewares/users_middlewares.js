@@ -92,14 +92,14 @@ exports.update = function(req, res) {
            deferred.reject(errMod.getError500(err));
         }
         else {
-            if (req.body.name) {user.name = req.body.name;}
-            if (req.body.username) {user.name = req.body.username;} //@TODO won't work if username already exist
-            if (req.body.password) {user.password = req.body.password;}
-            user.creation = req.body.creation;
-            user.group = req.body.group;
-            user.likes = req.body.likes;
-            user.comments = req.body.comments;
-            user.friends = req.body.friends;
+            if (req.body.name) user.name = req.body.name;
+            if (req.body.username) user.name = req.body.username; //@TODO won't work if username already exist
+            if (req.body.password) user.password = req.body.password;
+            if (req.body.creation) user.creation = req.body.creation;
+            if (req.body.group) user.group = req.body.group;
+            if (req.body.likes) user.likes = req.body.likes;
+            if (req.body.comments) user.comments = req.body.comments;
+            if (req.body.friends) user.friends = req.body.friends;
             user.save(function(err, user) {
                 if (err)
                     deferred.reject(errMod.getError500(err));
