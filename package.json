@@ -13,6 +13,7 @@
     "jade": "~1.9.1",
     "mongoose": "^3.8.23",
     "morgan": "~1.5.1",
+    "mysql": "^2.5.5",
     "q": "^1.1.2",
     "serve-favicon": "~2.2.0"
   },
@@ -21,6 +22,7 @@
     "chai-as-promised": "^4.2.0",
     "mockgoose": "^1.10.7",
     "node-mocks-http": "^1.2.4",
-    "pow-mongoose-fixtures": "^0.3.0"
+    "pow-mongoose-fixtures": "^0.3.0",
+    "request": "^2.53.0"
   }
 }
