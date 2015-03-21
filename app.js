@@ -5,16 +5,33 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var mysql = require('mysql');
+
+var app = express();
+app.set('db', 'mysql');
+//app.set('db', 'mongodb');
 
 var routes = require('./routes/index');
-var users = require('./routes/users');
+var users = require('./routes/users')(app.get('db'));
 var creations = require('./routes/creations');
 var comments = require('./routes/comments');
 var groups = require('./routes/groups');
 
-var app = express();
-
-mongoose.connect('mongodb://localhost/orphee');
+if(app.get('db') === 'mongodb') {
+    mongoose.connect('mongodb://localhost/orphee');
+}
+else if (app.get('db') === 'mysql') {
+    var pool = mysql.createPool({
+        host: 'localhost',
+        user: 'superphung',
+        password: 'superphung',
+        database: 'Orphee'
+    });
+    app.use(function(req, res, next) {
+        req.mysql = pool;
+        next();
+    });
+}
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -64,6 +81,5 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
-
 
 module.exports = app;
