@@ -18,7 +18,7 @@ exports.create = function(req, res) {
 
     creation.save(function(err) {
         if (err)
-            deferred.reject(errMod.getError500(err));
+            deferred.reject(errMod.getError(err, 500));
         else
             deferred.resolve('creation created');
     });
@@ -36,7 +36,7 @@ exports.getAll = function(req, res) {
         .limit(size)
         .exec(function(err, creations) {
             if (err)
-                deferred.reject(errMod.getError500(err));
+                deferred.reject(errMod.getError(err, 500));
             else
                 deferred.resolve(creations);
         });
@@ -48,7 +48,7 @@ exports.getById = function(req, res) {
 
     Model.Creation.findById(req.params.id, function(err, creation) {
         if (err)
-            deferred.reject(errMod.getError500(err));
+            deferred.reject(errMod.getError(err, 500));
         else
             deferred.resolve(creation);
     });
@@ -85,7 +85,7 @@ exports.update = function(req, res) {
             if (req.body.comments) creation.comments = req.body.comments;
             creation.save(function(err, creation) {
                 if (err)
-                    deferred.reject(errMod.getError500(err));
+                    deferred.reject(errMod.getError(err, 500));
                 else
                     deferred.resolve(creation);
             });
@@ -99,7 +99,7 @@ exports.delete = function(req, res) {
 
     Model.Creation.remove({_id : req.params.id}, function(err, creation) {
         if (err)
-            deferred.reject(errMod.getError500(err));
+            deferred.reject(errMod.getError(err, 500));
         else
             deferred.resolve('creation deleted');
     });

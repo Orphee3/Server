@@ -12,7 +12,7 @@ exports.getModelRefInfo = function(model, id, field) {
         .populate(field)
         .exec(function(err, data) {
             if (err)
-                deferred.reject(errMod.getError500(err));
+                deferred.reject(errMod.getError(err, 500));
             else {
                 if (data === null)
                     deferred.resolve(data);
@@ -30,6 +30,6 @@ exports.useMiddleware = function(middleware, req, res, next) {
                 return res.status(204).end();
             return res.status(200).json(data);
         })
-        .catch(function(err) {res.status(err.status).send(err.message);})
+        .catch(function(err) {return res.status(err.status).json(err.message);})
         .done();
 };

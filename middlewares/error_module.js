@@ -2,8 +2,8 @@
  * Created by superphung on 3/1/15.
  */
 
-exports.getError500 = function(err) {
+exports.getError = function(err, code) {
     var error = new Error(err);
-    error.status = 500;
+    error.status = code;
     return error;
 };

@@ -18,7 +18,7 @@ exports.create = function(req, res) {
 
     group.save(function(err) {
         if (err)
-            deferred.reject(errMod.getError500(err));
+            deferred.reject(errMod.getError(err, 500));
         else
             deferred.resolve('group created');
     });
@@ -36,7 +36,7 @@ exports.getAll = function(req, res) {
         .limit(size)
         .exec(function(err, groups) {
             if (err)
-                deferred.reject(errMod.getError500(err));
+                deferred.reject(errMod.getError(err, 500));
             else
                 deferred.resolve(groups);
         });
@@ -48,7 +48,7 @@ exports.getById = function(req, res) {
 
     Model.Group.findById(req.params.id, function(err, group) {
         if (err)
-            deferred.reject(errMod.getError500(err));
+            deferred.reject(errMod.getError(err, 500));
         else
             deferred.resolve(group);
     });
@@ -68,7 +68,7 @@ exports.update = function(req, res) {
 
     Model.Group.findById(req.params.id, function(err, group) {
         if (err)
-            deferred.reject(errMod.getError500(err));
+            deferred.reject(errMod.getError(err, 500));
         else {
             if (group === null) {
                 deferred.resolve(group);
@@ -79,7 +79,7 @@ exports.update = function(req, res) {
             if (req.body.creation) group.creation = req.body.creation;
             group.save(function(err, group) {
                 if (err)
-                    deferred.reject(errMod.getError500(err));
+                    deferred.reject(errMod.getError(err, 500));
                 else
                     deferred.resolve(group);
             });
@@ -93,7 +93,7 @@ exports.delete = function(req, res) {
 
     Model.Group.remove({_id: req.params.id}, function(err, group) {
         if (err)
-            deferred.reject(errMod.getError500(err));
+            deferred.reject(errMod.getError(err, 500));
         else
             deferred.resolve('user deleted');
     });

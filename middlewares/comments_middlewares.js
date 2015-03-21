@@ -17,7 +17,7 @@ exports.create = function(req, res) {
 
     comment.save(function(err) {
         if (err)
-            deferred.reject(errMod.getError500(err));
+            deferred.reject(errMod.getError(err, 500));
         else
             deferred.resolve('comment created');
     });
@@ -35,7 +35,7 @@ exports.getAll = function(req, res) {
         .limit(size)
         .exec(function(err, comments) {
             if (err)
-                deferred.reject(errMod.getError500(err));
+                deferred.reject(errMod.getError(err, 500));
             else
                 deferred.resolve(comments);
         });
@@ -47,7 +47,7 @@ exports.getById = function(req, res) {
 
     Model.Comment.findById(req.params.id, function(err, comment) {
         if (err)
-            deferred.reject(errMod.getError500(err));
+            deferred.reject(errMod.getError(err, 500));
         else
             deferred.resolve(comment);
     });
@@ -63,7 +63,7 @@ exports.update = function(req, res) {
 
     Model.Comment.findById(req.params.id, function(err, comment) {
         if (err)
-            deferred.reject(errMod.getError500(err));
+            deferred.reject(errMod.getError(err, 500));
         else {
             if (comment === null) {
                 deferred.resolve(comment);
@@ -72,7 +72,7 @@ exports.update = function(req, res) {
             if (req.body.message) comment.message = req.body.message;
             comment.save(function(err, comment) {
                 if (err)
-                    deferred.reject(errMod.getError500(err));
+                    deferred.reject(errMod.getError(err, 500));
                 else
                     deferred.resolve(comment);
             });
@@ -86,7 +86,7 @@ exports.delete = function(req, res) {
 
     Model.Comment.remove({_id: req.params.id}, function(err, comment) {
         if (err)
-            deferred.reject(errMod.getError500(err));
+            deferred.reject(errMod.getError(err, 500));
         else
             deferred.resolve('comment deleted');
     });

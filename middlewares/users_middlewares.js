@@ -17,16 +17,10 @@ exports.create = function(req, res) {
 
     user.save(function(err) {
         if (err) {
-            var error;
-            if (err.code == 11000) {
-                error = new Error('user already exist');
-                error.status = 409;
-            }
-            else {
-                error = new Error(err);
-                error.status = 500;
-            }
-            deferred.reject(error);
+            if (err.code == 11000)
+                deferred.reject(errMod.getError('user already exist', 409));
+            else
+                deferred.reject(errMod.getError(err, 500));
         }
         else
             deferred.resolve('user created');
@@ -45,7 +39,7 @@ exports.getAll = function(req, res) {
         .limit(size)
         .exec(function(err, users) {
             if (err)
-                deferred.reject(errMod.getError500(err));
+                deferred.reject(errMod.getError(err, 500));
             else
                 deferred.resolve(users);
         });
@@ -57,7 +51,7 @@ exports.getById = function(req, res) {
 
     Model.User.findById(req.params.id, function(err, user) {
         if (err)
-            deferred.reject(errMod.getError500(err));
+            deferred.reject(errMod.getError(err, 500));
         else
             deferred.resolve(user);
     });
@@ -89,7 +83,7 @@ exports.update = function(req, res) {
 
     Model.User.findById(req.params.id, function(err, user) {
         if (err) {
-           deferred.reject(errMod.getError500(err));
+           deferred.reject(errMod.getError(err, 500));
         }
         else {
             if (user === null) {
@@ -106,7 +100,7 @@ exports.update = function(req, res) {
             if (req.body.friends) user.friends = req.body.friends;
             user.save(function(err, user) {
                 if (err)
-                    deferred.reject(errMod.getError500(err));
+                    deferred.reject(errMod.getError(err, 500));
                 else
                     deferred.resolve(user);
             });
@@ -120,7 +114,7 @@ exports.delete = function(req, res) {
 
     Model.User.remove({ _id: req.params.id}, function(err, user) {
         if (err)
-            deferred.reject(errMod.getError500(err));
+            deferred.reject(errMod.getError(err, 500));
         else
             deferred.resolve('user deleted');
     });
