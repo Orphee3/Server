@@ -6,21 +6,24 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var mysql = require('mysql');
+var nconf = require('nconf');
+
+require('./middlewares/config_module')(nconf);
 
 var app = express();
-app.set('db', 'mysql');
+//app.set('db', 'mysql');
 //app.set('db', 'mongodb');
 
 var routes = require('./routes/index');
-var users = require('./routes/users')(app.get('db'));
+var users = require('./routes/users');
 var creations = require('./routes/creations');
 var comments = require('./routes/comments');
 var groups = require('./routes/groups');
 
-if(app.get('db') === 'mongodb') {
+if(nconf.get('db') === 'mongodb') {
     mongoose.connect('mongodb://localhost/orphee');
 }
-else if (app.get('db') === 'mysql') {
+else if (nconf.get('db') === 'mysql') {
     var pool = mysql.createPool({
         host: 'localhost',
         user: 'superphung',
@@ -48,7 +51,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/api', users);
 app.use('/api', creations);
-//app.use('/api', comments);
+app.use('/api', comments);
 app.use('/api', groups);
 
 // catch 404 and forward to error handler
