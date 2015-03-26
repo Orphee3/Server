@@ -17,6 +17,20 @@ exports.handleConnection = function(callback, req) {
     return deferred.promise;
 };
 
+exports.getOneRow = function(connection, query, deferred) {
+    connection.query(query, function(err, rows) {
+        if (err)
+            deferred.reject(errMod.getError(err, 500));
+        else {
+            if (rows.length === 0)
+                deferred.resolve(null);
+            else
+                deferred.resolve(rows[0]);
+        }
+        connection.release();
+    });
+};
+
 exports.getAllRows = function(connection, query, deferred) {
     connection.query(query, function(err, rows) {
         if (err)
@@ -43,6 +57,28 @@ exports.updateManyToManyRel = function(connection, table, id1, id1Res, id2, newD
                 });
             }
         }
+    });
+};
+
+exports.updateManyToOneRel = function(connection, table, id1, idRes, DataToChange, deferred) {
+    connection.query('UPDATE ' + table + ' SET ' + id1 + '=' + null + ' WHERE ' + id1 + '=' + idRes, function(err) {
+        if (err)
+            deferred.reject(errMod.getError(err, 500));
+        else {
+            for (var i = 0; i < DataToChange.length; i++) {
+                connection.query('UPDATE ' + table + ' SET ' + id1 + '=' + idRes + ' WHERE _id=' + DataToChange[i], function(err) {
+                    if (err)
+                        deferred.reject(errMod.getError(err, 500));
+                });
+            }
+        }
+    })
+};
+
+exports.updateOneToOne = function(connection, table, id, newData, deferred) {
+    connection.query('UPDATE ' + table + ' SET ? WHERE _id=' + id, newData, function(err) {
+        if (err)
+            deferred.reject(errMod.getError(err, 500));
     });
 };
 

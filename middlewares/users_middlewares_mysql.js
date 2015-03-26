@@ -31,17 +31,7 @@ function handleGetAll(connection, req, deferred) {
 }
 
 function handleGetById(connection, req, deferred) {
-    connection.query('SELECT * FROM users WHERE _id = ?', req.params.id, function(err, rows) {
-        if (err)
-            deferred.reject(errMod.getError(err, 500));
-        else {
-            if (rows.length === 0)
-                deferred.resolve(null);
-            else
-                deferred.resolve(rows[0]);
-        }
-        connection.release();
-    });
+    sqlMod.getOneRow(connection, 'SELECT * FROM users WHERE _id=' + req.params.id, deferred);
 }
 
 function handleGetCreation(connection, req, deferred) {
@@ -79,30 +69,13 @@ function handleUpdate(connection, req, deferred) {
     if (req.body.creation) sqlMod.updateManyToManyRel(connection, 'users_creations', 'user_id', req.params.id, 'creation_id', req.body.creation, deferred);
     if (req.body.group) sqlMod.updateManyToManyRel(connection, 'users_groups', 'user_id', req.params.id, 'group_id', req.body.group, deferred);
     if (req.body.likes) sqlMod.updateManyToManyRel(connection, 'users_likes', 'user_id', req.params.id, 'creation_id', req.body.likes, deferred);
-    if (req.body.comments) {
-        connection.query('DELETE FROM comments WHERE user_id=' + req.params.id, function(err) {
-            if (err)
-                deferred.reject(errMod.getError(err, 500));
-            else {
-                for (var i = 0; i < req.body.comments.length; i++) {
-                    connection.query('INSERT INTO comments SET user_id=' + req.params.id + ' WHERE _id=' + req.body.comments[i], function(err) {
-                        if (err)
-                            deferred.reject(errMod.getError(err, 500));
-                    });
-                }
-            }
-        });
-    }
+    if (req.body.comments) sqlMod.updateManyToOneRel(connection, 'comments', 'user_id', req.params.id, req.body.comments, deferred);
     if (req.body.friends) sqlMod.updateManyToManyRel(connection, 'friends', 'user1_id', req.params.id, 'user2_id', req.body.friends, deferred);
 
-    if (data.name || data.username || data.password) {
-        connection.query('UPDATE users SET ? WHERE _id=' + req.params.id, data, function(err) {
-            if (err)
-                deferred.reject(errMod.getError(err, 500));
-        });
-    }
+    if (data.name || data.username || data.password) sqlMod.updateOneToOne(connection, 'users', req.params.id, data, deferred);
 
-    connection.query('SELECT * FROM users WHERE _id = ?', req.params.id, function(err, rows) {
+
+    /*connection.query('SELECT * FROM users WHERE _id = ?', req.params.id, function(err, rows) {
         if (err)
             deferred.reject(errMod.getError(err, 500));
         else {
@@ -112,7 +85,8 @@ function handleUpdate(connection, req, deferred) {
                 deferred.resolve(rows[0]);
         }
         connection.release();
-    });
+    });*/
+    handleGetById(connection, req, deferred);
 }
 
 function handleDelete(connection, req, deferred) {
