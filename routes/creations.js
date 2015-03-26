@@ -3,8 +3,18 @@
  */
 
 var express = require('express');
-var middleware = require('../middlewares/creations_middlewares');
 var utilities = require('../middlewares/utilities_module');
+var nconf = require('nconf');
+var middleware;
+
+if (nconf.get('db') === 'mongodb') {
+    middleware = require('../middlewares/creations_middlewares');
+    console.log('use mongodb creations middleware');
+}
+else if (nconf.get('db') === 'mysql') {
+    middleware = require('../middlewares/creations_middlewares_mysql');
+    console.log('use mysql creations middleware');
+}
 
 var router = express.Router();
 
