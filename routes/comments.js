@@ -3,8 +3,18 @@
  */
 
 var express = require('express');
-var middleware = require('../middlewares/comments_middlewares');
 var utilities = require('../middlewares/utilities_module');
+var nconf = require('nconf');
+var middleware;
+
+if (nconf.get('db') === 'mongodb') {
+    middleware = require('../middlewares/comments_middlewares');
+    console.log('use mongodb comments middleware');
+}
+else if (nconf.get('db') === 'mysql') {
+    middleware = require('../middlewares/comments_middlewares_mysql');
+    console.log('use mysql comments middleware');
+}
 
 var router = express.Router();
 
@@ -31,3 +41,5 @@ router.put('/comment/:id', function(req, res, next) {
 router.delete('/comment/:id', function(req, res, next) {
     utilities.useMiddleware(middleware.delete, req, res, next);
 });
+
+module.exports = router;
