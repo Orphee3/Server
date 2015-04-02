@@ -11,8 +11,6 @@ var nconf = require('nconf');
 require('./middlewares/config_module')(nconf);
 
 var app = express();
-//app.set('db', 'mysql');
-//app.set('db', 'mongodb');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');

@@ -3,8 +3,18 @@
  */
 
 var express = require('express');
-var middleware = require('../middlewares/groups_middlewares');
 var utilities = require('../middlewares/utilities_module');
+var nconf = require('nconf');
+var middleware;
+
+if (nconf.get('db') === 'mongodb') {
+    middleware = require('../middlewares/groups_middlewares');
+    console.log('use mongodb groups middleware');
+}
+else if (nconf.get('db') === 'mysql') {
+    middleware = require('../middlewares/groups_middlewares_mysql');
+    console.log('use mysql groups middleware');
+}
 
 var router = express.Router();
 
@@ -20,11 +30,11 @@ router.get('/group/:id', function(req, res, next) {
    utilities.useMiddleware(middleware.getById, req, res, next);
 });
 
-router.get('/group/:id', function(req, res, next) {
+router.get('/group/:id/members', function(req, res, next) {
    utilities.useMiddleware(middleware.getMembers, req, res, next);
 });
 
-router.get('/group/:id', function(req, res, next) {
+router.get('/group/:id/creation', function(req, res, next) {
    utilities.useMiddleware(middleware.getCreation, req, res, next);
 });
 
