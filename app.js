@@ -18,6 +18,7 @@ var creations = require('./routes/creations');
 var comments = require('./routes/comments');
 var groups = require('./routes/groups');
 
+
 if(nconf.get('db') === 'mongodb') {
     mongoose.connect('mongodb://localhost/orphee');
 }
@@ -46,11 +47,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+require('./middlewares/auth_module')(app);
 app.use('/', routes);
 app.use('/api', users);
 app.use('/api', creations);
 app.use('/api', comments);
 app.use('/api', groups);
+
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -23,7 +23,8 @@ exports.create = function(req, res) {
                 deferred.reject(errMod.getError(err, 500));
         }
         else
-            deferred.resolve('user created');
+            deferred.resolve(user);
+            //  deferred.resolve('user created');
     });
     return deferred.promise;
 };
