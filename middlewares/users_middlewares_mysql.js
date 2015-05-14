@@ -9,7 +9,7 @@ function handleCreate(connection, req, deferred) {
     var data = {
         name: req.body.name,
         username: req.body.username,
-        password: req.body.password
+        password: sqlMod.hashMysqlPassword(req.body.password)
     };
     connection.query('INSERT INTO users SET ?', data, function (err) {
         if (err) {
@@ -65,7 +65,7 @@ function handleUpdate(connection, req, deferred) {
     var data = {};
     if (req.body.name) data.name = req.body.name;
     if (req.body.username) data.username = req.body.username;
-    if (req.body.password) data.password = req.body.password;
+    if (req.body.password) data.password = sqlMod.hashMysqlPassword(req.body.password);
     if (req.body.creation) sqlMod.updateManyToManyRel(connection, 'users_creations', 'user_id', req.params.id, 'creation_id', req.body.creation, deferred);
     if (req.body.group) sqlMod.updateManyToManyRel(connection, 'users_groups', 'user_id', req.params.id, 'group_id', req.body.group, deferred);
     if (req.body.likes) sqlMod.updateManyToManyRel(connection, 'users_likes', 'user_id', req.params.id, 'creation_id', req.body.likes, deferred);

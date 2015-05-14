@@ -3,7 +3,8 @@
  */
 
 var Q = require('q'),
-    errMod = require('./error_module.js');
+    errMod = require('./error_module.js'),
+    bcrypt = require('bcrypt-nodejs');
 
 exports.handleConnection = function(callback, req) {
     var deferred = Q.defer();
@@ -80,6 +81,11 @@ exports.updateOneToOne = function(connection, table, id, newData, deferred) {
         if (err)
             deferred.reject(errMod.getError(err, 500));
     });
+};
+
+exports.hashMysqlPassword = function(pwd) {
+    var salt = bcrypt.genSaltSync();
+    return bcrypt.hashSync(pwd, salt);
 };
 
 /*connection.query('DELETE FROM users_creations WHERE user_id=' + req.params.id, function(err) {
