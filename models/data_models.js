@@ -12,7 +12,8 @@ var UserSchema = mongoose.Schema({
     group: [{type: mongoose.Schema.Types.ObjectId, ref: 'Group'}],
     likes: [{type: mongoose.Schema.Types.ObjectId, ref: 'Creation'}],
     comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}],
-    friends: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
+    friends: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+    isAdmin: {type: Boolean, default: false}
 });
 
 var CreationSchema = mongoose.Schema({
@@ -21,7 +22,9 @@ var CreationSchema = mongoose.Schema({
     creator: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     creatorGroup: {type: mongoose.Schema.Types.ObjectId, ref: 'Group'},
     nbLikes: Number,
-    comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}]
+    comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}],
+    isPrivate: {type: Boolean, default: false},
+    authUser: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
 });
 
 var CommentSchema = mongoose.Schema({

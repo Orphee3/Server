@@ -37,7 +37,14 @@ function handleGetById(connection, req, deferred) {
 function handleGetCreation(connection, req, deferred) {
     sqlMod.getAllRows(connection, 'SELECT creations._id, creations.name, creations.dateCreation, creations.nbLikes ' +
     'FROM creations INNER JOIN users_creations ON creations._id = users_creations.creation_id INNER JOIN users ON users_creations.user_id = users._id ' +
-    'WHERE users_creations.user_id=' + req.params.id, deferred);
+    'WHERE creations.isPrivate=0 AND users_creations.user_id=' + req.params.id, deferred);
+}
+
+function handleGetCreationPrivate(connection, req, deferred) {
+    sqlMod.getAllRows(connection, 'SELECT creations._id, creations.name, creations.dateCreation, creations.nbLikes ' +
+    'FROM creations INNER JOIN users_creations ON creations._id = users_creations.creation_id INNER JOIN users users_cre ON users_creations.user_id = users_cre._id ' +
+    'INNER JOIN users_auth_creations ON creations._id = users_auth_creations.creation_id INNER JOIN users users_auth ON users_auth_creations.user_id = users_auth._id ' +
+    'WHERE creations.isPrivate=1 AND users_creations.user_id=' + req.params.id + ' AND users_auth_creations.user_id=' + req.user._id, deferred);
 }
 
 function handleGetGroup(connection, req, deferred) {
@@ -113,6 +120,10 @@ exports.getById = function(req, res) {
 
 exports.getCreation = function(req, res) {
     return sqlMod.handleConnection(handleGetCreation, req);
+};
+
+exports.getCreationPrivate = function(req, res) {
+    return sqlMod.handleConnection(handleGetCreationPrivate, req);
 };
 
 exports.getGroup = function(req, res) {

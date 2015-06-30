@@ -60,7 +60,11 @@ exports.getById = function(req, res) {
 };
 
 exports.getCreation = function(req, res) {
-    return utilities.getModelRefInfo(Model.User, req.params.id, 'creation');
+    return utilities.getModelRefInfo(Model.User, req.params.id, {path: 'creation', match: {isPrivate: false}});
+};
+
+exports.getCreationPrivate = function(req, res) {
+    return utilities.getModelRefInfo(Model.User, req.params.id, {path: 'creation', match: {isPrivate: true, authUser: req.user._id}});
 };
 
 exports.getGroup = function(req, res) {
@@ -121,4 +125,3 @@ exports.delete = function(req, res) {
     });
     return deferred.promise;
 };
-
