@@ -32,9 +32,22 @@ function handleGetAll(connection, req, deferred) {
     var size = ('undefined' === typeof req.query.size) ? 8888 : req.query.size;
     sqlMod.getAllRows(connection, 'SELECT * FROM creations LIMIT ' + offset + ', ' + size, deferred);
 }
-
+//@TODO have to manage private
 function handleGetById(connection, req, deferred) {
+    //sqlMod.getOneRow(connection, 'SELECT * FROM creations WHERE _id=' + req.params.id + ' AND creations.isPrivate=0', deferred);
     sqlMod.getOneRow(connection, 'SELECT * FROM creations WHERE _id=' + req.params.id, deferred);
+}
+
+function handleGetByIdPrivate(connection, req, deferred) {
+    var query = '';
+
+    if (req.user.isAdmin)
+        query = 'SELECT * FROM creations WHERE _id=' + req.params.id;
+    else
+        query = 'SELECT creations._id, creations.name, creations.dateCreation, creations.nbLikes, creations.group_id, creations.isPrivate FROM creations ' +
+        'INNER JOIN users_auth_creations ON creations._id = users_auth_creations.creation_id INNER JOIN users ON users_auth_creations.user_id = users._id ' +
+        'WHERE creations.isPrivate=1 AND creations._id=' + req.params.id + ' AND users_auth_creations.user_id=' + req.user._id;
+    sqlMod.getOneRow(connection, query, deferred);
 }
 
 function handleGetCreator(connection, req, deferred) {
@@ -86,6 +99,10 @@ exports.getAll = function(req, res) {
 
 exports.getById = function(req, res) {
     return sqlMod.handleConnection(handleGetById, req);
+};
+
+exports.getByIdPrivate = function(req, res) {
+    return sqlMod.handleConnection(handleGetByIdPrivate, req);
 };
 
 exports.getCreator = function(req, res) {
