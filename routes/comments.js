@@ -37,14 +37,14 @@ router.get('/comment/:id/creator', function(req, res, next) {
 
 router.put('/comment/:id',
     jwt({secret: nconf.get('secret')}),
-    utilities.isUserOrAdmin,
+    utilities.isCreatorOrAdmin(middleware.getById, 'comments'),
     function(req, res, next) {
     utilities.useMiddleware(middleware.update, req, res, next);
 });
 
 router.delete('/comment/:id',
     jwt({secret: nconf.get('secret')}),
-    utilities.isUserOrAdmin,
+    utilities.isCreatorOrAdmin(middleware.getById, 'comments'),
     function(req, res, next) {
     utilities.useMiddleware(middleware.delete, req, res, next);
 });
