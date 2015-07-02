@@ -4,7 +4,8 @@
 
 module.exports = function(nconf) {
     nconf.defaults({
-        //'db': 'mongodb'
-        'db': 'mysql'
+        'db': 'mongodb',
+        //'db': 'mysql',
+        'secret': 'superphung'
     });
 };

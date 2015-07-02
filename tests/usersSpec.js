@@ -128,7 +128,7 @@ describe('Unit test for users middlewares', function() {
                     obj.name = 'getCreation';
                     obj.username = 'getCreation';
                     obj.password = 'getCreation';
-                    obj.creation.push(creation._id);
+                    obj.creations.push(creation._id);
                     return Model.User.create(obj);
                 })
                 .then(function(user) {
@@ -175,7 +175,7 @@ describe('Unit test for users middlewares', function() {
                    obj.name = 'getGroup';
                    obj.username = 'getGroup';
                    obj.password = 'getGroup';
-                   obj.group.push(group._id);
+                   obj.groups.push(group._id);
                    return Model.User.create(obj);
                })
                .then(function(user) {

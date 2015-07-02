@@ -31,7 +31,7 @@ exports.getAll = function(req, res) {
     var offset = parseInt(req.query.offset),
         size = parseInt(req.query.size);
 
-    Model.Creation.find()
+    Model.Creation.find({isPrivate: false})
         .skip(offset)
         .limit(size)
         .exec(function(err, creations) {
@@ -46,7 +46,24 @@ exports.getAll = function(req, res) {
 exports.getById = function(req, res) {
     var deferred = Q.defer();
 
-    Model.Creation.findById(req.params.id, function(err, creation) {
+    Model.Creation.findOne({_id: req.params.id, isPrivate: false}, function(err, creation) {
+        if (err)
+            deferred.reject(errMod.getError(err, 500));
+        else
+            deferred.resolve(creation);
+    });
+    return deferred.promise;
+};
+
+exports.getByIdPrivate = function(req, res) {
+    var deferred = Q.defer();
+
+    var query = {};
+    if (req.user.isAdmin)
+        query = {_id: req.params.id};
+    else
+        query = {_id: req.params.id, isPrivate: true, authUser: req.user._id};
+    Model.Creation.findOne(query, function(err, creation) {
         if (err)
             deferred.reject(errMod.getError(err, 500));
         else
@@ -72,7 +89,7 @@ exports.update = function(req, res) {
 
     Model.Creation.findById(req.params.id, function(err, creation) {
         if (err)
-            deferred.reject(errMod.getError500(err));
+            deferred.reject(errMod.getError(err, 500));
         else {
             if (creation === null) {
                 deferred.resolve(creation);

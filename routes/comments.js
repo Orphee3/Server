@@ -5,6 +5,7 @@
 var express = require('express');
 var utilities = require('../middlewares/utilities_module');
 var nconf = require('nconf');
+var jwt = require('express-jwt');
 var middleware;
 
 if (nconf.get('db') === 'mongodb') {
@@ -34,11 +35,17 @@ router.get('/comment/:id/creator', function(req, res, next) {
    utilities.useMiddleware(middleware.getCreator, req, res, next);
 });
 
-router.put('/comment/:id', function(req, res, next) {
+router.put('/comment/:id',
+    jwt({secret: nconf.get('secret')}),
+    utilities.isCreatorOrAdmin(middleware.getById, 'comments'),
+    function(req, res, next) {
     utilities.useMiddleware(middleware.update, req, res, next);
 });
 
-router.delete('/comment/:id', function(req, res, next) {
+router.delete('/comment/:id',
+    jwt({secret: nconf.get('secret')}),
+    utilities.isCreatorOrAdmin(middleware.getById, 'comments'),
+    function(req, res, next) {
     utilities.useMiddleware(middleware.delete, req, res, next);
 });
 

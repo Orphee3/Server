@@ -5,6 +5,7 @@
 var express = require('express');
 var utilities = require('../middlewares/utilities_module');
 var nconf = require('nconf');
+var jwt = require('express-jwt');
 var middleware;
 
 if (nconf.get('db') === 'mongodb') {
@@ -27,7 +28,13 @@ router.get('/creation', function(req, res, next) {
 });
 
 router.get('/creation/:id', function(req, res, next) {
-   utilities.useMiddleware(middleware.getById, req, res, next);
+    utilities.useMiddleware(middleware.getById, req, res, next);
+});
+
+router.get('/creationPrivate/:id',
+    jwt({secret: nconf.get('secret')}),
+    function(req, res, next) {
+    utilities.useMiddleware(middleware.getByIdPrivate, req, res, next);
 });
 
 router.get('/creation/:id/creator', function(req, res, next) {
@@ -42,12 +49,18 @@ router.get('/creation/:id/comments', function(req, res, next) {
     utilities.useMiddleware(middleware.getComments, req, res, next);
 });
 
-router.put('/creation/:id', function(req, res, next) {
+router.put('/creation/:id',
+    jwt({secret: nconf.get('secret')}),
+    utilities.isCreatorOrAdmin(middleware.getCreator, 'creations'),
+    function(req, res, next) {
     utilities.useMiddleware(middleware.update, req, res, next);
 });
 
-router.delete('/creation/:id', function(req, res, next) {
-   utilities.useMiddleware(middleware.delete, req, res, next);
+router.delete('/creation/:id',
+    jwt({secret: nconf.get('secret')}),
+    utilities.isCreatorOrAdmin(middleware.getCreator, 'creations'),
+    function(req, res, next) {
+    utilities.useMiddleware(middleware.delete, req, res, next);
 });
 
 module.exports = router;

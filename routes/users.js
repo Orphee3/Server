@@ -1,6 +1,7 @@
 var express = require('express');
 var utilities = require('../middlewares/utilities_module');
 var nconf = require('nconf');
+var jwt = require('express-jwt');
 var middleware;
 
 if (nconf.get('db') === 'mongodb') {
@@ -19,7 +20,10 @@ router.get('/', function (req, res, next) {
     res.send('respond with a resource');
 });
 
-router.post('/user', function (req, res, next) {
+router.post('/user',
+    jwt({secret: nconf.get('secret')}),
+    utilities.isAdmin,
+    function (req, res, next) {
     utilities.useMiddleware(middleware.create, req, res, next);
 });
 
@@ -33,6 +37,12 @@ router.get('/user/:id', function (req, res, next) {
 
 router.get('/user/:id/creation', function (req, res, next) {
     utilities.useMiddleware(middleware.getCreation, req, res, next);
+});
+
+router.get('/user/:id/creationPrivate',
+    jwt({secret: nconf.get('secret')}),
+    function (req, res, next) {
+    utilities.useMiddleware(middleware.getCreationPrivate, req, res, next);
 });
 
 router.get('/user/:id/group', function (req, res, next) {
@@ -51,11 +61,17 @@ router.get('/user/:id/friends', function (req, res, next) {
     utilities.useMiddleware(middleware.getFriends, req, res, next);
 });
 
-router.put('/user/:id', function (req, res, next) {
+router.put('/user/:id',
+    jwt({secret: nconf.get('secret')}),
+    utilities.isUserOrAdmin,
+    function (req, res, next) {
     utilities.useMiddleware(middleware.update, req, res, next);
 });
 
-router.delete('/user/:id', function (req, res, next) {
+router.delete('/user/:id',
+    jwt({secret: nconf.get('secret')}),
+    utilities.isAdmin,
+    function (req, res, next) {
     utilities.useMiddleware(middleware.delete, req, res, next);
 });
 

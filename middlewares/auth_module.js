@@ -13,7 +13,6 @@ if (nconf.get('db') === 'mongodb') user_middleware = require('./users_middleware
 else if (nconf.get('db') === 'mysql') user_middleware = require('./users_middlewares_mysql');
 
 var SALT_WORK_FACTOR = 10;
-var SECRET = 'superphung';
 
 module.exports = function (server) {
     Model.User.schema.pre('save', function (next) {
@@ -120,7 +119,7 @@ module.exports = function (server) {
             req.logIn(user, {session: false}, function (err) {
                 if (err) return next(err);
             });
-            var token = jwt.sign(user, SECRET, {expiresInMinutes: 1440});
+            var token = jwt.sign(user, nconf.get('secret'), {expiresInMinutes: 1440});
             return res.status(200).json({token: token});
         })(req, res, next);
     }
