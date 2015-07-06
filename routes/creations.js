@@ -31,7 +31,7 @@ router.get('/creation/:id', function(req, res, next) {
     utilities.useMiddleware(middleware.getById, req, res, next);
 });
 
-router.get('/creationPrivate/:id',
+router.get('/creation/:id/private',
     jwt({secret: nconf.get('secret')}),
     function(req, res, next) {
     utilities.useMiddleware(middleware.getByIdPrivate, req, res, next);
