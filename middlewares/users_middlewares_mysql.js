@@ -11,6 +11,10 @@ function handleCreate(connection, req, deferred) {
         username: req.body.username,
         password: sqlMod.hashMysqlPassword(req.body.password)
     };
+    if (req.body.fbId) data.fbId = req.body.fbId;
+    if (req.body.fbToken) data.fbToken = req.body.fbToken;
+    if (req.body.googleId) data.googleId = req.body.googleId;
+    if (req.body.googleToken) data.googleToken = req.body.googleToken;
     connection.query('INSERT INTO users SET ?', data, function (err) {
         if (err) {
             if (err.code === 'ER_DUP_ENTRY')
