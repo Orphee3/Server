@@ -6,9 +6,10 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var mysql = require('mysql');
+var AWS = require('aws-sdk');
 var nconf = require('nconf');
 
-require('./middlewares/config_module')(nconf);
+require('./middlewares/config_module')(nconf, AWS);
 
 var app = express();
 
@@ -48,6 +49,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 require('./middlewares/auth_module')(app);
+require('./middlewares/upload')(app, AWS);
 app.use('/', routes);
 app.use('/api', users);
 app.use('/api', creations);
