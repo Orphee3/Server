@@ -66,11 +66,9 @@ module.exports = function (server) {
                     if (rows.length > 0) {
                         comparePassword(rows[0], credentials.password, function (err, isMatch) {
                             if (err)
-                                return done(err);
+                                return done(null, false, {message: 'Invalid password.'});
                             if (isMatch)
                                 return done(null, rows[0]);
-                            else
-                                return done(null, false, {message: 'Invalid password.'});
                         });
                     }
                     else
@@ -90,10 +88,9 @@ module.exports = function (server) {
                 if (user) {
                     comparePassword(user, credentials.password, function(err, isMatch) {
                         if (err)
-                            return done(err);
+                            return done(null, false, {message: 'Invalid password.'});
                         if (isMatch)
                             return done(null, user);
-                        return done(null, false, {message: 'Invalid password'});
                     });
                 }
                 else
