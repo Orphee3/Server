@@ -49,7 +49,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 require('./middlewares/auth_module')(app);
-require('./middlewares/upload')(app, AWS);
+require('./middlewares/aws_module')(app, AWS);
 app.use('/', routes);
 app.use('/api', users);
 app.use('/api', creations);

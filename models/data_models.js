@@ -28,7 +28,8 @@ var CreationSchema = mongoose.Schema({
     nbLikes: Number,
     comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}],
     isPrivate: {type: Boolean, default: false},
-    authUser: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
+    authUser: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+    awsKey: {type: String}
 });
 
 var CommentSchema = mongoose.Schema({
