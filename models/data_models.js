@@ -32,10 +32,22 @@ var CreationSchema = mongoose.Schema({
     awsKey: {type: String}
 });
 
-var CommentSchema = mongoose.Schema({
-    creator: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
+var SubCommentSchema = mongoose.Schema({
+    creation: {type: mongoose.Schema.Types.ObjectId, ref: 'Creation'},
+    parentId: {type: mongoose.Schema.Types.ObjectId, ref: 'Comment'},
+    creator: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     dateCreation: {type: Date, default: Date.now},
     message: String
+});
+
+var CommentSchema = mongoose.Schema({
+    creation: {type: mongoose.Schema.Types.ObjectId, ref: 'Creation'},
+    parentId: {type: mongoose.Schema.Types.ObjectId},
+    creator: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
+    dateCreation: {type: Date, default: Date.now},
+    message: String,
+    child: [SubCommentSchema]
+
 });
 
 var GroupSchema = mongoose.Schema({
@@ -47,5 +59,6 @@ var GroupSchema = mongoose.Schema({
 
 exports.User = mongoose.model('User', UserSchema);
 exports.Creation = mongoose.model('Creation', CreationSchema);
+exports.SubComment = mongoose.model('SubComment', SubCommentSchema);
 exports.Comment = mongoose.model('Comment', CommentSchema);
 exports.Group = mongoose.model('Group', GroupSchema);

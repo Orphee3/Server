@@ -5,47 +5,81 @@
 var Q = require('q'),
     Model = require('../models/data_models.js'),
     errMod = require('./error_module.js'),
-    utilities = require('./utilities_module.js');
+    utilities = require('./utilities_module.js'),
+    creationMiddleware = require('./creations_middlewares');
 
-exports.create = function(req, res) {
-    var deferred = Q.defer(),
-        comment = new Model.Comment();
+exports.create = function (req, res) {
+    var deferred = Q.defer();
 
-    comment.creator = req.body.creator;
-    if (req.body.dateCreation) comment.dateCreation = req.body.dateCreation;
-    comment.message = req.body.message;
+    creationMiddleware.getById({params: {id: req.body.creation}}, res)
+        .then(function () {
+            if (req.body.creation === req.body.parentId) {
+                var comment = new Model.Comment();
+                comment.creation = req.body.creation;
+                comment.creator = req.body.creator;
+                comment.message = req.body.message;
 
-    comment.save(function(err) {
-        if (err)
-            deferred.reject(errMod.getError(err, 500));
-        else
-            deferred.resolve('comment created');
-    });
+                comment.save(function (err) {
+                    if (err) deferred.reject(errMod.getError(err, 500));
+                    else deferred.resolve(comment)
+                });
+            } else {
+                exports.getById({params: {id: req.body.parentId}}, res)
+                    .then(function (comment) {
+                        var subComment = new Model.SubComment();
+                        subComment.creation = req.body.creation;
+                        subComment.parentId = req.body.parentId;
+                        subComment.creator = req.body.creator;
+                        subComment.message = req.body.message;
+
+                        subComment.save(function (err) {
+                            if (err) deferred.reject(errMod.getError(err, 500));
+                            else {
+                                comment.child.push(subComment);
+                                comment.save(function (err, comment) {
+                                    if (err) deferred.reject(errMod.getError(err, 500));
+                                    else deferred.resolve(comment);
+                                });
+                            }
+                        });
+                    })
+                    .catch(function (err) {
+                        deferred.reject(err);
+                    });
+            }
+        })
+        .catch(function (err) {
+            deferred.reject(err);
+        });
+
     return deferred.promise;
 };
 
-exports.getAll = function(req, res) {
+function getComments(req, query) {
     var deferred = Q.defer();
-
     var offset = parseInt(req.query.offset),
         size = parseInt(req.query.size);
 
-    Model.Comment.find()
+    Model.Comment.find(query)
         .skip(offset)
         .limit(size)
-        .exec(function(err, comments) {
+        .exec(function (err, comments) {
             if (err)
                 deferred.reject(errMod.getError(err, 500));
             else
                 deferred.resolve(comments);
         });
     return deferred.promise;
+}
+
+exports.getAll = function (req, res) {
+    return getComments(req, {});
 };
 
-exports.getById = function(req, res) {
+exports.getById = function (req, res) {
     var deferred = Q.defer();
 
-    Model.Comment.findById(req.params.id, function(err, comment) {
+    Model.Comment.findById(req.params.id, function (err, comment) {
         if (err)
             deferred.reject(errMod.getError(err, 500));
         else
@@ -54,14 +88,35 @@ exports.getById = function(req, res) {
     return deferred.promise;
 };
 
-exports.getCreator = function(req, res) {
+exports.getCreator = function (req, res) {
     return utilities.getModelRefInfo(Model.Comment, req.params.id, 'creator');
 };
 
-exports.update = function(req, res) {
+exports.getCreationComments = function (req, res) {
+    return getComments(req, {creation: req.params.id});
+};
+
+exports.getSubComments = function (req, res) {
+    var deferred = Q.defer();
+    var offset = parseInt(req.query.offset),
+        size = parseInt(req.query.size);
+
+    Model.SubComment.find({parentId: req.params.id})
+        .skip(offset)
+        .limit(size)
+        .exec(function (err, subComments) {
+            if (err)
+                deferred.reject(errMod.getError(err, 500));
+            else
+                deferred.resolve(subComments);
+        });
+    return deferred.promise;
+};
+
+exports.update = function (req, res) {
     var deferred = Q.defer();
 
-    Model.Comment.findById(req.params.id, function(err, comment) {
+    Model.Comment.findById(req.params.id, function (err, comment) {
         if (err)
             deferred.reject(errMod.getError(err, 500));
         else {
@@ -70,7 +125,7 @@ exports.update = function(req, res) {
                 return deferred.promise;
             }
             if (req.body.message) comment.message = req.body.message;
-            comment.save(function(err, comment) {
+            comment.save(function (err, comment) {
                 if (err)
                     deferred.reject(errMod.getError(err, 500));
                 else
@@ -81,10 +136,10 @@ exports.update = function(req, res) {
     return deferred.promise;
 };
 
-exports.delete = function(req, res) {
+exports.delete = function (req, res) {
     var deferred = Q.defer();
 
-    Model.Comment.remove({_id: req.params.id}, function(err, comment) {
+    Model.Comment.remove({_id: req.params.id}, function (err, comment) {
         if (err)
             deferred.reject(errMod.getError(err, 500));
         else
