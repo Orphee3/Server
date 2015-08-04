@@ -11,6 +11,7 @@ var jwt = require('jsonwebtoken');
 var user_middleware;
 var nconf = require('nconf');
 var errMod = require('./error_module');
+var request = require('request');
 if (nconf.get('db') === 'mongodb') user_middleware = require('./users_middlewares');
 else if (nconf.get('db') === 'mysql') user_middleware = require('./users_middlewares_mysql');
 
@@ -39,91 +40,55 @@ module.exports = function (server) {
         });
     };
 
-    function createSocialAccount(req, credentials, done) {
-        if (credentials.social === 'local') return done(null, false, {message: 'Incorrect username.'});
-        req.body.username = credentials.username;
-        req.body.password = credentials.password;
-        req.body[credentials.social + 'Id'] = credentials.username;
-        req.body[credentials.social + 'Token'] = credentials.password;
-        user_middleware.create(req)
-            .then(function(data) {
-                return done(null, data);
-            })
-            .catch(function(err) {
-                if (err.status === 409) return done(null, false, {message: err.message});
-                return done(err);
-            })
-            .done();
-    }
-
     function loginMysql(req, credentials, done) {
         req.mysql.getConnection(function (err, connection) {
             if (err) done(err);
-            var customQuery = 'SELECT * FROM users WHERE ' + credentials.index + '=?';
+            var customQuery = 'SELECT * FROM users WHERE username=?';
             connection.query(customQuery, credentials.username, function (err, rows) {
                 if (err) done(err);
                 else {
-                    if (rows.length > 0) {
-                        comparePassword(rows[0], credentials.password, function (err, isMatch) {
-                            if (err)
-                                return done(null, false, {message: 'Invalid password.'});
-                            if (isMatch)
-                                return done(null, rows[0]);
-                        });
-                    }
-                    else
-                        createSocialAccount(req, credentials, done);
+                    comparePassword(rows[0], credentials.password, function (err, isMatch) {
+                        if (err)
+                            return done(err);
+                        if (!isMatch)
+                            return done(null, false, {message: 'Invalid password.'});
+                        return done(null, rows[0]);
+                    });
                 }
                 connection.release();
             });
         });
     }
 
-    function loginMongodb(req, credentials, done) {
+    function loginMongodb(credentials, done) {
         Model.User.findOne()
-            .where(credentials.index).equals(credentials.username)
+            .where('username').equals(credentials.username)
             .select('+password')
             .exec(function (err, user) {
                 if (err) return done(err);
-                if (user) {
-                    comparePassword(user, credentials.password, function(err, isMatch) {
-                        if (err)
-                            return done(null, false, {message: 'Invalid password.'});
-                        if (isMatch)
-                            return done(null, user);
-                    });
-                }
-                else
-                    createSocialAccount(req, credentials, done);
+                comparePassword(user, credentials.password, function (err, isMatch) {
+                    if (err)
+                        return done(err);
+                    if (!isMatch)
+                        return done(null, false, {message: 'Invalid password.'});
+                    return done(null, user);
+                });
             });
-    }
-
-    function getCredentials(token) {
-        var tokenDecoded = new Buffer(token, 'base64').toString();
-        var tokenSplit = tokenDecoded.split(':');
-        if (tokenSplit.length == 3) {
-            if (!/^fb$/i.test(tokenSplit[2]) && !/^google$/i.test(tokenSplit[2]) && !/^local$/i.test(tokenSplit[2]))
-                return {format: 0};
-            var index;
-            if (tokenSplit[2] == 'fb')
-                index = 'fbId';
-            else if (tokenSplit[2] == 'google')
-                index = 'googleId';
-            else
-                index = 'username';
-            return {username: tokenSplit[0], password: tokenSplit[1], social: tokenSplit[2], index: index, format: 1};
-        }
-        return {format: 0};
     }
 
     passport.use('bearer-login', new BearerStrategy({
         passReqToCallback: true
-    }, function(req, token, done) {
-        var credentials = getCredentials(token);
-        if (!credentials.format)
+    }, function (req, token, done) {
+        var tokenDecoded = new Buffer(token, 'base64').toString();
+        var tokenSplit = tokenDecoded.split(':');
+        if (tokenSplit.length != 2)
             return done(null, false);
+        var credentials = {
+            username: tokenSplit[0],
+            password: tokenSplit[1]
+        };
         if (nconf.get('db') === 'mongodb')
-            loginMongodb(req, credentials, done);
+            loginMongodb(credentials, done);
         else if (nconf.get('db') === 'mysql')
             loginMysql(req, credentials, done);
     }));
@@ -146,27 +111,93 @@ module.exports = function (server) {
 
     server.post('/api/login',
         passport.authenticate('bearer-login', {session: false}),
-        function(req, res) {
+        function (req, res) {
             var token = jwt.sign(req.user, nconf.get('secret'), {expiresInMinutes: 1440});
             return res.status(200).json({token: token});
         });
 
     server.post('/api/register', function (req, res, next) {
-        authUserAndGetToken('local-register', req, res, next);
-    });
-
-    function authUserAndGetToken(strategy, req, res, next) {
-        passport.authenticate(strategy, function (err, user, info) {
+        passport.authenticate('local-register', function (err, user, info) {
             if (err) return next(err);
-            if (!user) {
-                //if (strategy === 'bearer') return res.status(401).json(info.message);
-                if (strategy === 'local-register') return res.status(409).json(info.message);
-            }
+            if (!user) return res.status(409).json(info.message);
             req.logIn(user, {session: false}, function (err) {
                 if (err) return next(err);
             });
-            var token = jwt.sign(user, nconf.get('secret'), {expiresInMinutes: 1440});
+            var token = jwt.sign(req.user, nconf.get('secret'), {expiresInMinutes: 1440});
             return res.status(200).json({token: token});
         })(req, res, next);
-    }
+    });
+
+    server.post('/auth/facebook', function (req, res) {
+        var accessTokenUrl = 'https://graph.facebook.com/v2.3/oauth/access_token';
+        var graphApiUrl = 'https://graph.facebook.com/v2.3/me';
+        var params = {
+            code: req.body.code,
+            client_id: req.body.clientId,
+            client_secret: nconf.get('facebook').secret,
+            redirect_uri: req.body.redirectUri
+        };
+        console.log(params);
+        request.get({url: accessTokenUrl, qs: params, json: true}, function (err, response, accessToken) {
+            if (response.statusCode !== 200) {
+                return res.status(500).send({message: accessToken.error.message});
+            }
+            request.get({url: graphApiUrl, qs: accessToken, json: true}, function (err, response, profile) {
+                if (response.statusCode !== 200) {
+                    return res.status(500).send({message: profile.error.message});
+                }
+                Model.User.findOne({fbId: profile.id}, function (err, existingUser) {
+                    if (existingUser) {
+                        var token = jwt.sign(existingUser, nconf.get('secret'), {expiresInMinutes: 1440});
+                        return res.send({token: token});
+                    }
+                    var user = new Model.User();
+                    user.fbId = profile.id;
+                    user.name = profile.name;
+                    user.save(function () {
+                        var token = jwt.sign(user, nconf.get('secret'), {expiresInMinutes: 1440});
+                        return res.send({token: token});
+                    });
+                });
+            });
+        });
+    });
+
+    server.post('/auth/google', function (req, res) {
+        var accessTokenUrl = 'https://accounts.google.com/o/oauth2/token';
+        var peopleApiUrl = 'https://www.googleapis.com/plus/v1/people/me/openIdConnect';
+
+        var params = {
+            code: req.body.code,
+            client_id: req.body.clientId,
+            client_secret: nconf.get('google').secret,
+            redirect_uri: req.body.redirectUri,
+            grant_type: 'authorization_code'
+        };
+
+        request.post(accessTokenUrl, {json: true, form: params}, function (err, response, token) {
+            var accessToken = token.access_token;
+            var headers = {Authorization: 'Bearer ' + accessToken};
+
+            request.get({url: peopleApiUrl, headers: headers, json: true}, function (err, response, profile) {
+                if (profile.error) {
+                    return res.status(500).send({message: profile.error.message});
+                }
+                Model.User.findOne({googleId: profile.sub}, function (err, existingUser) {
+                    if (existingUser) {
+                        var token = jwt.sign(existingUser, nconf.get('secret'), {expiresInMinutes: 1440});
+                        return res.send({token: token});
+                    }
+                    var user = Model.User();
+                    user.googleId = profile.sub;
+                    user.name = profile.name;
+                    user.save(function () {
+                        var token = jwt.sign(user, nconf.get('secret'), {expiresInMinutes: 1440});
+                        return res.send({token: token});
+                    });
+                });
+            });
+        });
+    });
+
 };
