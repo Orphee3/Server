@@ -46,6 +46,8 @@ module.exports = function (server) {
             var customQuery = 'SELECT * FROM users WHERE username=?';
             connection.query(customQuery, credentials.username, function (err, rows) {
                 if (err) done(err);
+                if (rows.length === 0)
+                    return done(null, false, {message: 'User does not exist.'});
                 else {
                     comparePassword(rows[0], credentials.password, function (err, isMatch) {
                         if (err)
@@ -66,6 +68,8 @@ module.exports = function (server) {
             .select('+password')
             .exec(function (err, user) {
                 if (err) return done(err);
+                if (!user)
+                    return done(null, false, {message: 'User does not exist.'});
                 comparePassword(user, credentials.password, function (err, isMatch) {
                     if (err)
                         return done(err);
