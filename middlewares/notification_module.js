@@ -3,11 +3,11 @@
  */
 var errMod = require('./error_module');
 var nconf = require('nconf');
-var jwt = require('express-jwt');
+var authorization = require('./authorization_module');
 
 module.exports = function (server) {
     server.get('/api/notify/:type/:id',
-        jwt({secret: nconf.get('secret')}),
+        authorization.validateToken({secret: nconf.get('secret')}),
         function (req, res, next) {
             var type = req.params.type;
 

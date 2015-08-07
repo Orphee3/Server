@@ -7,11 +7,13 @@ var bcrypt = require('bcrypt-nodejs');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var BearerStrategy = require('passport-http-bearer').Strategy;
-var jwt = require('jsonwebtoken');
+var jwt = require('jwt-simple');
 var user_middleware;
 var nconf = require('nconf');
+var moment = require('moment');
 var errMod = require('./error_module');
 var request = require('request');
+var authorization = require('./authorization_module');
 if (nconf.get('db') === 'mongodb') user_middleware = require('./users_middlewares');
 else if (nconf.get('db') === 'mysql') user_middleware = require('./users_middlewares_mysql');
 
@@ -39,6 +41,25 @@ module.exports = function (server) {
             callback(null, isMatch);
         });
     };
+
+    function createToken(user) {
+        var payload = {
+            exp: moment().add(1, 'day').unix(),
+            iat: moment().unix(),
+            sub: user._id
+        };
+        return jwt.encode(payload, nconf.get('secret'));
+    }
+
+    //middleware check token expired.
+    server.use(authorization.checkTokenExpiration({secret: nconf.get('secret')}));
+    //check error invalid token
+    server.use(function (err, req, res, next) {
+        if (err.message == 'Signature verification failed' || err.message == 'Not enough or too many segments')
+            res.status(401).json('invalid token');
+        else
+            next();
+    });
 
     function loginMysql(req, credentials, done) {
         req.mysql.getConnection(function (err, connection) {
@@ -116,8 +137,8 @@ module.exports = function (server) {
     server.post('/api/login',
         passport.authenticate('bearer-login', {session: false}),
         function (req, res) {
-            var token = jwt.sign(req.user, nconf.get('secret'), {expiresInMinutes: 1440});
-            return res.status(200).json({token: token});
+            var token = createToken(req.user);
+            return res.status(200).json({token: token, user: req.user});
         });
 
     server.post('/api/register', function (req, res, next) {
@@ -127,8 +148,8 @@ module.exports = function (server) {
             req.logIn(user, {session: false}, function (err) {
                 if (err) return next(err);
             });
-            var token = jwt.sign(req.user, nconf.get('secret'), {expiresInMinutes: 1440});
-            return res.status(200).json({token: token});
+            var token = createToken(req.user);
+            return res.status(200).json({token: token, user: req.user});
         })(req, res, next);
     });
 
@@ -159,8 +180,8 @@ module.exports = function (server) {
                     user.fbId = profile.id;
                     user.name = profile.name;
                     user.save(function () {
-                        var token = jwt.sign(user, nconf.get('secret'), {expiresInMinutes: 1440});
-                        return res.send({token: token});
+                        var token = createToken(user);
+                        return res.send({token: token, user: user});
                     });
                 });
             });
@@ -196,8 +217,8 @@ module.exports = function (server) {
                     user.googleId = profile.sub;
                     user.name = profile.name;
                     user.save(function () {
-                        var token = jwt.sign(user, nconf.get('secret'), {expiresInMinutes: 1440});
-                        return res.send({token: token});
+                        var token = createToken(user);
+                        return res.send({token: token, user: user});
                     });
                 });
             });

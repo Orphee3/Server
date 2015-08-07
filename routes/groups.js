@@ -5,7 +5,7 @@
 var express = require('express');
 var utilities = require('../middlewares/utilities_module');
 var nconf = require('nconf');
-var jwt = require('express-jwt');
+var authorization = require('../middlewares/authorization_module');
 var middleware;
 
 if (nconf.get('db') === 'mongodb') {
@@ -40,14 +40,14 @@ router.get('/group/:id/creation', function(req, res, next) {
 });
 
 router.put('/group/:id',
-    jwt({secret: nconf.get('secret')}),
+    authorization.validateToken({secret: nconf.get('secret')}),
     utilities.isCreatorOrAdmin(middleware.getMembers, 'groups'),
     function(req, res, next) {
     utilities.useMiddleware(middleware.update, req, res, next);
 });
 
 router.delete('/group/:id',
-    jwt({secret: nconf.get('secret')}),
+    authorization.validateToken({secret: nconf.get('secret')}),
     utilities.isCreatorOrAdmin(middleware.getMembers, 'groups'),
     function(req, res, next) {
     utilities.useMiddleware(middleware.delete, req, res, next);
