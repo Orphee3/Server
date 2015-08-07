@@ -1,7 +1,7 @@
 var nconf = require('nconf');
 var redis = require('redis');
 var errMod = require('./error_module');
-var jwt = require('express-jwt');
+var authorization = require('./authorization_module');
 var Q = require('q');
 var utilities = require('./utilities_module');
 var middleware;
@@ -14,13 +14,13 @@ else if (nconf.get('db') === 'mysql')
 module.exports = function (server) {
 
     server.get('/api/askfriend/:id',
-        jwt({secret: nconf.get('secret')}),
+        authorization.validateToken({secret: nconf.get('secret')}),
         function (req, res, next) {
             utilities.useMiddleware(askFriend, req, res, next);
         });
 
     server.get('/api/acceptfriend/:id',
-        jwt({secret: nconf.get('secret')}),
+        authorization.validateToken({secret: nconf.get('secret')}),
         function (req, res, next) {
             utilities.useMiddleware(acceptFriend, req, res, next);
         });

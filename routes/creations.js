@@ -5,7 +5,7 @@
 var express = require('express');
 var utilities = require('../middlewares/utilities_module');
 var nconf = require('nconf');
-var jwt = require('express-jwt');
+var authorization = require('../middlewares/authorization_module');
 var middleware;
 
 if (nconf.get('db') === 'mongodb') {
@@ -32,7 +32,7 @@ router.get('/creation/:id', function(req, res, next) {
 });
 
 router.get('/creation/:id/private',
-    jwt({secret: nconf.get('secret')}),
+    authorization.validateToken({secret: nconf.get('secret')}),
     function(req, res, next) {
     utilities.useMiddleware(middleware.getByIdPrivate, req, res, next);
 });
@@ -50,14 +50,14 @@ router.get('/creation/:id/comments', function(req, res, next) {
 });
 
 router.put('/creation/:id',
-    jwt({secret: nconf.get('secret')}),
+    authorization.validateToken({secret: nconf.get('secret')}),
     utilities.isCreatorOrAdmin(middleware.getCreator, 'creations'),
     function(req, res, next) {
     utilities.useMiddleware(middleware.update, req, res, next);
 });
 
 router.delete('/creation/:id',
-    jwt({secret: nconf.get('secret')}),
+    authorization.validateToken({secret: nconf.get('secret')}),
     utilities.isCreatorOrAdmin(middleware.getCreator, 'creations'),
     function(req, res, next) {
     utilities.useMiddleware(middleware.delete, req, res, next);

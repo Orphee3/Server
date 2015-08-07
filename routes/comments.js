@@ -5,7 +5,7 @@
 var express = require('express');
 var utilities = require('../middlewares/utilities_module');
 var nconf = require('nconf');
-var jwt = require('express-jwt');
+var authorization = require('../middlewares/authorization_module');
 var errMod = require('../middlewares/error_module');
 var middleware;
 
@@ -21,7 +21,7 @@ else if (nconf.get('db') === 'mysql') {
 var router = express.Router();
 
 router.post('/comment',
-    //jwt({secret: nconf.get('secret')}),
+    authorization.validateToken({secret: nconf.get('secret')}),
     function (req, res, next) {
         if (!req.body.creation || !req.body.parentId || !req.body.creator || !req.body.message)
             return next(errMod.getError('missing parameters'));
@@ -52,14 +52,14 @@ router.get('/comment/:id/subcomment', function (req, res, next) {
 });
 
 router.put('/comment/:id',
-    jwt({secret: nconf.get('secret')}),
+    authorization.validateToken({secret: nconf.get('secret')}),
     utilities.isCreatorOrAdmin(middleware.getById, 'comments'),
     function (req, res, next) {
         utilities.useMiddleware(middleware.update, req, res, next);
     });
 
 router.delete('/comment/:id',
-    jwt({secret: nconf.get('secret')}),
+    authorization.validateToken({secret: nconf.get('secret')}),
     utilities.isCreatorOrAdmin(middleware.getById, 'comments'),
     function (req, res, next) {
         utilities.useMiddleware(middleware.delete, req, res, next);

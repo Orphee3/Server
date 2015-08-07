@@ -1,11 +1,11 @@
 var errMod = require('./error_module');
-var utilities = require('../middlewares/utilities_module');
+var utilities = require('./utilities_module');
 var nconf = require('nconf');
-var jwt = require('express-jwt');
+var authorization = require('./authorization_module');
 var middleware;
 
-if (nconf.get('db') === 'mongodb') middleware = require('../middlewares/creations_middlewares');
-else if (nconf.get('db') === 'mysql') middleware = require('../middlewares/creations_middlewares_mysql');
+if (nconf.get('db') === 'mongodb') middleware = require('./creations_middlewares');
+else if (nconf.get('db') === 'mysql') middleware = require('./creations_middlewares_mysql');
 
 module.exports = function (server, AWS) {
     var s3 = new AWS.S3();
@@ -43,7 +43,7 @@ module.exports = function (server, AWS) {
     });
 
     server.post('/api/delete/:id',
-        jwt({secret: nconf.get('secret')}),
+        authorization.validateToken({secret: nconf.get('secret')}),
         utilities.isCreatorOrAdmin(middleware.getCreator, 'creations'),
         function (req, res, next) {
             middleware.getById(req, res)
