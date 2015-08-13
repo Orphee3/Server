@@ -63,6 +63,25 @@ exports.getById = function(req, res) {
     return deferred.promise;
 };
 
+exports.getByName = function (req, res) {
+    var deferred = Q.defer();
+
+    var offset = parseInt(req.query.offset);
+    var size = parseInt(req.query.size);
+
+    var nameCandidate = new RegExp('\^' + req.params.name, 'i');
+    Model.User.find({name: nameCandidate})
+        .skip(offset)
+        .limit(size)
+        .exec(function (err, users) {
+            if (err)
+                deferred.reject(errMod.getError(err, 500));
+            else
+                deferred.resolve(users);
+        });
+    return deferred.promise;
+};
+
 exports.getCreation = function(req, res) {
     return utilities.getModelRefInfo(Model.User, req.params.id, {path: 'creation', match: {isPrivate: false}});
 };

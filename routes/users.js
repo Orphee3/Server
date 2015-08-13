@@ -35,6 +35,10 @@ router.get('/user/:id', function (req, res, next) {
     utilities.useMiddleware(middleware.getById, req, res, next);
 });
 
+router.get('/user/:name/name', function (req, res, next) {
+    utilities.useMiddleware(middleware.getByName, req, res, next);
+});
+
 router.get('/user/:id/creation', function (req, res, next) {
     utilities.useMiddleware(middleware.getCreation, req, res, next);
 });
