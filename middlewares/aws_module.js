@@ -10,31 +10,22 @@ else if (nconf.get('db') === 'mysql') middleware = require('./creations_middlewa
 module.exports = function (server, AWS) {
     var s3 = new AWS.S3();
 
-    server.get('/api/upload/:type', function (req, res, next) {
-        var type = req.params.type;
+    server.get('/api/upload/:type/:mediaType', function (req, res, next) {
+        var types = ['image/jpeg', 'image/png', 'audio/x-midi'];
+        var type = req.params.type + '/' + req.params.mediaType;
 
-        if (type) {
-            var match = type.match(/^image|boucle$/);
-            if (match)
-                type = match[0];
-            else
-                return next(errMod.getError('Invalid type', 400));
-        }
-        else
-            return next(errMod.getError('No type', 400));
+        if (types.indexOf(type) === -1)
+            return res.status(400).json('invalid type');
 
         var key = new Date().getTime().toString() + Math.random().toString();
-        var fileName = type + '/' + key;
-        var contentType;
-        if (type === 'boucle') contentType = 'audio/x-midi';
-        else if (type === 'image') contentType = 'image/jpeg';
+        var fileName = req.params.type + '/' + key;
         var uploadParams = {
             Bucket: nconf.get('amazon').bucket,
             Key: fileName,
-            ContentType: contentType
+            ContentType: type
         };
         s3.getSignedUrl('putObject', uploadParams, function (err, url) {
-            if (err) return next(errMod.getError(err, 500));
+            if (err) return res.status(500).json(err.message);
             return res.status(200).json({
                 urlPut: url,
                 urlGet: nconf.get('amazon').url + nconf.get('amazon').bucket + '/' + fileName
