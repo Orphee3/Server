@@ -173,11 +173,12 @@ module.exports = function (server) {
                 }
                 Model.User.findOne({fbId: profile.id}, function (err, existingUser) {
                     if (existingUser) {
-                        var token = jwt.sign(existingUser, nconf.get('secret'), {expiresInMinutes: 1440});
-                        return res.send({token: token});
+                        var token = createToken(existingUser);
+                        return res.send({token: token, user: existingUser});
                     }
                     var user = new Model.User();
                     user.fbId = profile.id;
+                    user.picture =  'https://graph.facebook.com/v2.3/' + profile.id + '/picture?type=large';
                     user.name = profile.name;
                     user.save(function () {
                         var token = createToken(user);
@@ -210,11 +211,12 @@ module.exports = function (server) {
                 }
                 Model.User.findOne({googleId: profile.sub}, function (err, existingUser) {
                     if (existingUser) {
-                        var token = jwt.sign(existingUser, nconf.get('secret'), {expiresInMinutes: 1440});
-                        return res.send({token: token});
+                        var token = createToken(existingUser);
+                        return res.send({token: token, user: existingUser});
                     }
                     var user = Model.User();
                     user.googleId = profile.sub;
+                    user.picture = user.picture.replace('sz=50', 'sz=200');
                     user.name = profile.name;
                     user.save(function () {
                         var token = createToken(user);

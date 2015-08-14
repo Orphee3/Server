@@ -7,10 +7,9 @@ var UserSchema = mongoose.Schema({
     name: String,
     username: {type: String, index: {unique: true}},
     password: {type: String, select: false},
+    picture: {type: String},
     fbId: {type: String, index: {unique: true}},
-    //fbToken: {type: String},
     googleId: {type: Number, index: {unique: true}},
-    //googleToken: {type: String},
     dateCreation: {type: Date, default: Date.now},
     creations: [{type: mongoose.Schema.Types.ObjectId, ref: 'Creation'}],
     groups: [{type: mongoose.Schema.Types.ObjectId, ref: 'Group'}],
@@ -29,7 +28,8 @@ var CreationSchema = mongoose.Schema({
     comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}],
     isPrivate: {type: Boolean, default: false},
     authUser: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
-    awsKey: {type: String}
+    awsKey: {type: String},
+    url: {type: String}
 });
 
 var SubCommentSchema = mongoose.Schema({
