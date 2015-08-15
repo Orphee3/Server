@@ -6,7 +6,7 @@ var Q = require('q'),
     errMod = require('./error_module.js'),
     utilities = require('./utilities_module.js');
 
-exports.create = function(req, res) {
+exports.create = function (req, res) {
     var deferred = Q.defer();
 
     var user = new Model.User();
@@ -19,7 +19,7 @@ exports.create = function(req, res) {
     if (req.body.googleId) user.googleId = req.body.googleId;
     if (req.body.googleToken) user.googleToken = req.body.googleToken;
 
-    user.save(function(err) {
+    user.save(function (err) {
         if (err) {
             if (err.code == 11000)
                 deferred.reject(errMod.getError('user already exist', 409));
@@ -28,12 +28,11 @@ exports.create = function(req, res) {
         }
         else
             deferred.resolve(user);
-            //  deferred.resolve('user created');
     });
     return deferred.promise;
 };
 
-exports.getAll = function(req, res) {
+exports.getAll = function (req, res) {
     var deferred = Q.defer();
 
     var offset = parseInt(req.query.offset),
@@ -42,7 +41,7 @@ exports.getAll = function(req, res) {
     Model.User.find()
         .skip(offset)
         .limit(size)
-        .exec(function(err, users) {
+        .exec(function (err, users) {
             if (err)
                 deferred.reject(errMod.getError(err, 500));
             else
@@ -51,10 +50,10 @@ exports.getAll = function(req, res) {
     return deferred.promise;
 };
 
-exports.getById = function(req, res) {
+exports.getById = function (req, res) {
     var deferred = Q.defer();
 
-    Model.User.findById(req.params.id, function(err, user) {
+    Model.User.findById(req.params.id, function (err, user) {
         if (err)
             deferred.reject(errMod.getError(err, 500));
         else
@@ -82,36 +81,74 @@ exports.getByName = function (req, res) {
     return deferred.promise;
 };
 
-exports.getCreation = function(req, res) {
+exports.getCreation = function (req, res) {
     return utilities.getModelRefInfo(Model.User, req.params.id, {path: 'creation', match: {isPrivate: false}});
 };
 
-exports.getCreationPrivate = function(req, res) {
-    return utilities.getModelRefInfo(Model.User, req.params.id, {path: 'creation', match: {isPrivate: true, authUser: req.user._id}});
+exports.getCreationPrivate = function (req, res) {
+    return utilities.getModelRefInfo(Model.User, req.params.id, {
+        path: 'creation',
+        match: {isPrivate: true, authUser: req.user._id}
+    });
 };
 
-exports.getGroup = function(req, res) {
+exports.getGroup = function (req, res) {
     return utilities.getModelRefInfo(Model.User, req.params.id, 'group');
 };
 
-exports.getLikes = function(req, res) {
+exports.getLikes = function (req, res) {
     return utilities.getModelRefInfo(Model.User, req.params.id, 'likes');
 };
 
-exports.getComments = function(req, res) {
+exports.getComments = function (req, res) {
     return utilities.getModelRefInfo(Model.User, req.params.id, 'comments');
 };
 
-exports.getFriends = function(req, res) {
+exports.getFriends = function (req, res) {
     return utilities.getModelRefInfo(Model.User, req.params.id, 'friends');
 };
 
-exports.update = function(req, res) {
+exports.getFlux = function (req, res) {
+    var offset = parseInt(req.query.offset);
+    var size = parseInt(req.query.size);
+
+    return utilities.getModelRefInfo(Model.User, req.params.id, {path: 'flux', options: {skip: offset, limit: size}});
+};
+
+exports.getNews = function (req, res) {
+    var offset = parseInt(req.query.offset);
+    var size = parseInt(req.query.size);
+
+    return utilities.getModelRefInfo(Model.User, req.params.id, {path: 'news', options: {skip: offset, limit: size}});
+};
+
+exports.getLastNews = function (req, res) {
+    var deferred = Q.defer();
+    utilities.getModelRefInfo(Model.User, req.params.id, {path: 'news', match: {viewed: false}})
+        .then(updateNews)
+        .catch(function (err) {
+            deferred.reject(errMod.getError(err, 500));
+        });
+
+    return deferred.promise;
+
+    function updateNews(news) {
+        news.forEach(function (n) {
+            n.viewed = true;
+            n.save(function (err) {
+                if (err) throw err;
+            });
+        });
+        deferred.resolve(news);
+    }
+};
+
+exports.update = function (req, res) {
     var deferred = Q.defer();
 
-    Model.User.findById(req.params.id, function(err, user) {
+    Model.User.findById(req.params.id, function (err, user) {
         if (err) {
-           deferred.reject(errMod.getError(err, 500));
+            deferred.reject(errMod.getError(err, 500));
         }
         else {
             if (user === null) {
@@ -126,7 +163,9 @@ exports.update = function(req, res) {
             if (req.body.likes) user.likes = req.body.likes;
             if (req.body.comments) user.comments = req.body.comments;
             if (req.body.friends) user.friends = req.body.friends;
-            user.save(function(err, user) {
+            if (req.body.flux) user.flux = req.body.flux;
+            if (req.body.news) user.news = req.body.news;
+            user.save(function (err, user) {
                 if (err)
                     deferred.reject(errMod.getError(err, 500));
                 else
@@ -137,10 +176,10 @@ exports.update = function(req, res) {
     return deferred.promise;
 };
 
-exports.delete = function(req, res) {
+exports.delete = function (req, res) {
     var deferred = Q.defer();
 
-    Model.User.remove({ _id: req.params.id}, function(err, user) {
+    Model.User.remove({_id: req.params.id}, function (err, user) {
         if (err)
             deferred.reject(errMod.getError(err, 500));
         else

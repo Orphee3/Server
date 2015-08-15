@@ -16,7 +16,9 @@ var UserSchema = mongoose.Schema({
     likes: [{type: mongoose.Schema.Types.ObjectId, ref: 'Creation'}],
     comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}],
     friends: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
-    isAdmin: {type: Boolean, default: false}
+    isAdmin: {type: Boolean, default: false},
+    flux: [{type: mongoose.Schema.Types.ObjectId, ref: 'Notification'}],
+    news: [{type: mongoose.Schema.Types.ObjectId, ref: 'Notification'}]
 });
 
 var CreationSchema = mongoose.Schema({
@@ -47,7 +49,14 @@ var CommentSchema = mongoose.Schema({
     dateCreation: {type: Date, default: Date.now},
     message: String,
     child: [SubCommentSchema]
+});
 
+var NotificationSchema = mongoose.Schema({
+    type: {type: String},
+    media: [CreationSchema],
+    viewed: {type: Boolean, default: false},
+    dateCreation: {type: Date, default: Date.now},
+    userSource: [UserSchema]
 });
 
 var GroupSchema = mongoose.Schema({
@@ -61,4 +70,5 @@ exports.User = mongoose.model('User', UserSchema);
 exports.Creation = mongoose.model('Creation', CreationSchema);
 exports.SubComment = mongoose.model('SubComment', SubCommentSchema);
 exports.Comment = mongoose.model('Comment', CommentSchema);
+exports.Notification = mongoose.model('Notification', NotificationSchema);
 exports.Group = mongoose.model('Group', GroupSchema);
