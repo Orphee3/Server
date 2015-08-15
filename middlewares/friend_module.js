@@ -5,9 +5,12 @@ var authorization = require('./authorization_module');
 var Q = require('q');
 var utilities = require('./utilities_module');
 var middleware;
+var notifMiddleware;
 
-if (nconf.get('db') === 'mongodb')
+if (nconf.get('db') === 'mongodb') {
     middleware = require('./users_middlewares');
+    notifMiddleware = require('./notification_middlewares');
+}
 else if (nconf.get('db') === 'mysql')
     middleware = require('./users_middlewares_mysql');
 
@@ -25,91 +28,113 @@ module.exports = function (server) {
             utilities.useMiddleware(acceptFriend, req, res, next);
         });
 
-    function sendMessage(idCandidate, obj, redisPub, redisQuery, deferred) {
-        redisPub.publish(idCandidate, JSON.stringify(obj));
-        redisQuery.rpush([idCandidate, JSON.stringify(obj)], function (err, reply) {
-            if (err)
+    function sendInvitation(source, target, deferred) {
+        notifMiddleware.create({type: 'friend', userSource: source})
+            .then(function (n) {
+                target.news.unshift(n._id);
+                target.save(function (err) {
+                    if (err) throw err;
+                    else {
+                        var redisPub = redis.createClient();
+                        redisPub.publish(target._id, JSON.stringify(n));
+                        redisPub.quit();
+                        deferred.resolve('ask friend ok');
+                    }
+                });
+            })
+            .catch(function (err) {
                 deferred.reject(errMod.getError(err, 500));
+            });
+    }
+
+    function acceptAndNotify(source, target, usFriends, utFriends, news, deferred) {
+        var listUSourceId = usFriends.map(function (friend) {
+                return friend._id
+            }),
+            listUTargetId = utFriends.map(function (friend) {
+                return friend._id
+            });
+        listUSourceId.push(target._id);
+        listUTargetId.push(source._id);
+        Q.all([
+            notifMiddleware.create({type: 'newFriend', userSource: target}),//create notification for user source
+            notifMiddleware.create({type: 'newFriend', userSource: source}),//create notification for user target
+            middleware.update({params: {id: source._id}, body: {friends: listUSourceId}}),//update source friend list
+            middleware.update({params: {id: target._id}, body: {friends: listUTargetId}}),//update target friend list
+            notifMiddleware.delete(news[0]._id)//delete notification ask friend
+        ]).spread(function (nSource, nTarget) {
+            source.news.unshift(nSource._id);
+            target.news.unshift(nTarget._id);
+            return [
+                nSource,
+                nTarget,
+                middleware.update({params: {id: source._id}, body: {news: source.news}}), //add news for user source
+                middleware.update({params: {id: target._id}, body: {news: target.news}}) //add news for user target
+            ];
+        }).spread(function (nSource, nTarget) {
+            var redisPub = redis.createClient();
+            redisPub.publish(source._id, JSON.stringify(nSource)); //notify user in real time
+            redisPub.publish(target._id, JSON.stringify(nTarget)); //notify user in real time
+            redisPub.quit();
+            deferred.resolve('ok');
+        }).catch(function (err) {
+            deferred.reject(errMod.getError(err, 500));
         });
     }
 
-    function sendInvitation(req, res, redisPub, redisQuery, deferred) {
-        sendMessage(req.params.id, {type: 'friend', friend: req.user._id, date: new Date()}, redisPub, redisQuery, deferred);
-        redisPub.quit();
-        redisQuery.quit();
-        deferred.resolve('ask friend ok');
-    }
-
-    function notifyFriendRequest(req, res, redisPub, redisQuery, deferred, obj) {
-        obj.friendList1.push(req.user._id);
-        obj.friendList2.push(req.params.id);
+    function handleFriendRequest(source, target, type) {
+        var deferred = Q.defer();
         Q.all([
-            middleware.update({params: {id: req.params.id}, body: {friends: obj.friendList1}}, res),
-            middleware.update({params: {id: req.user._id}, body: {friends: obj.friendList2}}, res)
-        ]).spread(function () {
-            sendMessage(req.params.id, {type: 'newFriend', friend: req.user._id, date: new Date()}, redisPub, redisQuery);
-            sendMessage(req.user._id, {type: 'newFriend', friend: req.params.id, date: new Date()}, redisPub, redisQuery);
-            redisQuery.lindex(req.user._id, obj.index, function (err , res) {
-                if (err)
-                    deferred.reject(errMod.getError(err, 500));
-                else {
-                    redisQuery.lrem(req.user._id, 0, res, function (err) {
-                        if (err)
-                            deferred.reject(errMod.getError(err, 500));
-                        else {
-                            redisPub.quit();
-                            redisQuery.quit();
-                            deferred.resolve('ok');
-                        }
-                    });
-                }
+            middleware.getById({params: {id: target}}),
+            middleware.getById({params: {id: source}})
+        ]).spread(function (usertarget, usersource) {
+            return [
+                usertarget,
+                usersource,
+                middleware.getFriends({params: {id: usertarget._id}}),
+                middleware.getFriends({params: {id: usersource._id}})
+            ];
+        }).spread(function (usertarget, usersource, utFriends, usFriends) {
+            var l1 = utFriends.filter(function (friend) {
+                return JSON.stringify(friend._id) === JSON.stringify(usersource._id);
             });
-        }).catch(function (err) {deferred.reject(errMod.getError(err, 500));});
-    }
-
-    function friendParse(req, res, targetId, sourceId, notify, type) {
-       var deferred = Q.defer();
-        Q.all([
-            middleware.getById({params: {id: req.params.id}}, res),
-            middleware.getById({params: {id: req.user._id}}, res)
-        ]).spread(function (user1, user2) {
-            if (user1.friends.indexOf(req.user._id) != -1 && user2.friends.indexOf(req.params.id) != -1)
+            var l2 = usFriends.filter(function (friend) {
+                return JSON.stringify(friend._id) === JSON.stringify(usertarget._id);
+            });
+            if (l1.length > 0 && l2.length > 0) {
                 deferred.resolve('already friend');
-            else {
-                var redisPub = redis.createClient();
-                var redisQuery = redis.createClient();
-                //check if already send invitation - ask invitation
-                //check if have invitation - accept invitation
-                redisQuery.lrange(targetId, 0, -1, function (err, news) {
-                    if (err)
-                        deferred.reject(errMod.getError(err, 500));
-                    else if (news.length != 0) {
-                        var elem = news.map(JSON.parse);
-                        for (var i = 0; i < elem.length; i++) {
-                            if (elem[i].type === 'friend' && elem[i].friend === sourceId) {
-                                if (type === 'ask') deferred.resolve('already send');
-                                else notify(req, res, redisPub, redisQuery, deferred, {
-                                    index: i,
-                                    friendList1: user1.friends,
-                                    friendList2: user2.friends
-                                });
-                            }
-                        }
-                    } else {
-                        if (type === 'ask') notify(req, res, redisPub, redisQuery, deferred);
-                        else deferred.resolve('no friend invitation');
-                    }
-                });
+            } else {
+                return [middleware.getNews({
+                    params: {id: usertarget._id},
+                    query: {offset: 0}
+                }), usersource, usertarget, usFriends, utFriends]
             }
-        }).catch(function (err) {deferred.reject(errMod.getError(err, 500));});
+        }).spread(function (targetnews, usersource, usertarget, usfriends, utfriends) {
+            var alreadySend = targetnews.filter(function (n) {
+                return n.type === 'friend' && JSON.stringify(n.userSource[0]._id) === JSON.stringify(usersource._id);
+            });
+            if (alreadySend.length > 0) {
+                if (type === 'ask') deferred.resolve('already send');
+                else acceptAndNotify(usersource, usertarget, usfriends, utfriends, alreadySend, deferred);
+            } else {
+                if (type === 'ask') sendInvitation(usersource, usertarget, deferred);
+                else deferred.resolve('no friend invitation');
+            }
+        }).catch(function (err) {
+            deferred.reject(errMod.getError(err, 500));
+        });
         return deferred.promise;
     }
 
     function askFriend(req, res, next) {
-        return friendParse(req, res, req.params.id, req.user._id, sendInvitation, 'ask');
+        var source = req.user._id;
+        var target = req.params.id;
+        return handleFriendRequest(source, target, 'ask');
     }
 
     function acceptFriend(req, res, next) {
-        return friendParse(req, res, req.user._id, req.params.id, notifyFriendRequest, 'reply');
+        var source = req.params.id;
+        var target = req.user._id;
+        return handleFriendRequest(source, target);
     }
 };

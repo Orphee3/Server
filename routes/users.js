@@ -65,6 +65,18 @@ router.get('/user/:id/friends', function (req, res, next) {
     utilities.useMiddleware(middleware.getFriends, req, res, next);
 });
 
+router.get('/user/:id/flux', function (req, res, next) {
+    utilities.useMiddleware(middleware.getFlux, req, res, next);
+});
+//@todo add auth
+router.get('/user/:id/news', function (req, res, next) {
+    utilities.useMiddleware(middleware.getNews, req, res, next);
+});
+
+router.get('/user/:id/lastNews', function (req, res, next) {
+    utilities.useMiddleware(middleware.getLastNews, req, res, next);
+});
+
 router.put('/user/:id',
     authorization.validateToken({secret: nconf.get('secret')}),
     utilities.isUserOrAdmin,
