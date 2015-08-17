@@ -5,6 +5,7 @@
 var fs = require('fs');
 var nconf = require('nconf');
 var jwt = require('jwt-simple');
+var auth = require('./socket_auth');
 var redis = require('redis');
 var pub = redis.createClient();
 var sub = redis.createClient();
@@ -14,12 +15,11 @@ module.exports = Notification;
 function Notification(io) {
 
     var actions = {};
-    actions.validateToken = validateToken;
     actions.onSubscribe = onSubscribe;
     actions.onPrivateMessage = onPrivateMessage;
     actions.sendInfoToClient = sendInfoToClient;
 
-    io.use(actions.validateToken);
+    io.use(auth.validateToken);
 
     io.on('connection', function (socket) {
         console.log('client connected');
@@ -29,21 +29,6 @@ function Notification(io) {
 
     sub.on('message', actions.sendInfoToClient);
 
-    function validateToken(socket, next) {
-        var req = socket.request;
-        if (req._query && req._query.token) {
-            var token = req._query.token;
-            try {
-                jwt.decode(token, nconf.get('secret'));
-            } catch (err) {
-                return next(new Error('not authorized'));
-            }
-            return next();
-        } else {
-            return next(new Error('not authorized'))
-        }
-    }
-
     function onPrivateMessage(data) {
 
     }
@@ -51,14 +36,7 @@ function Notification(io) {
     function onSubscribe(socket, data) {
         if (!data.channel)
             return error(socket, 'missing params : channel');
-        var token = socket.handshake.query.token;
-        try {
-            var decoded = jwt.decode(token, nconf.get('secret'));
-        } catch (err) {
-            console.log('err jwt decode', err);
-            return notAuthorized(socket);
-        }
-        if (data.channel != decoded.sub) {
+        if (data.channel != socket.request.user._id) {
             console.log('error id');
             return notAuthorized(socket);
         }
