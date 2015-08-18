@@ -38,7 +38,7 @@ function getPrivateMessage(req) {
     var deferred = Q.defer(),
         offset = parseInt(req.query.offset),
         size = parseInt(req.query.size),
-        sid = req.user_id,
+        sid = req.user._id,
         tid = req.params.id,
         idRoom = sid > tid ? (sid + tid) : (tid + sid);
 
@@ -52,8 +52,12 @@ function getPrivateMessage(req) {
         }).exec(function (err, data) {
             if (err)
                 deferred.reject(err);
-            else
-                deferred.resolve(data.messages);
+            else {
+                if (data === null)
+                    deferred.resolve(data);
+                else
+                    deferred.resolve(data.messages);
+            }
         });
     return deferred.promise;
 }

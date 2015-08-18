@@ -7,7 +7,7 @@ var nconf = require('nconf');
 var authorization = require('../middlewares/authorization_module');
 var middleware;
 
-if (nconf.get('db') === mongodb) {
+if (nconf.get('db') === 'mongodb') {
     middleware = require('../middlewares/room_middlewares');
 }
 
