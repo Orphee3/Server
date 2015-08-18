@@ -6,6 +6,7 @@ var Model = require('../models/data_models');
 var Q = require('q');
 
 exports.findByNameOrCreate = findByNameOrCreate;
+exports.getPrivateMessage = getPrivateMessage;
 exports.update = update;
 
 function findByNameOrCreate(idSource, idTarget) {
@@ -30,6 +31,30 @@ function findByNameOrCreate(idSource, idTarget) {
             }
         }
     });
+    return deferred.promise;
+}
+
+function getPrivateMessage(req) {
+    var deferred = Q.defer(),
+        offset = parseInt(req.query.offset),
+        size = parseInt(req.query.size),
+        sid = req.user_id,
+        tid = req.params.id,
+        idRoom = sid > tid ? (sid + tid) : (tid + sid);
+
+    Model.Room.findOne({name: idRoom})
+        .populate({
+            path: 'messages',
+            options: {
+                skip: offset,
+                limit: size
+            }
+        }).exec(function (err, data) {
+            if (err)
+                deferred.reject(err);
+            else
+                deferred.resolve(data.messages);
+        });
     return deferred.promise;
 }
 

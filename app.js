@@ -18,6 +18,7 @@ var users = require('./routes/users');
 var creations = require('./routes/creations');
 var comments = require('./routes/comments');
 var groups = require('./routes/groups');
+var room = require('./routes/room');
 
 
 if(nconf.get('db') === 'mongodb') {
@@ -57,6 +58,7 @@ app.use('/api', users);
 app.use('/api', creations);
 app.use('/api', comments);
 app.use('/api', groups);
+app.use('/api', room);
 
 
 
