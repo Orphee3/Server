@@ -6,6 +6,11 @@ var fs = require('fs');
 var nconf = require('nconf');
 var jwt = require('jwt-simple');
 var redis = require('redis');
+
+var auth = require('./socket_auth');
+var chat = require('./socket_chat');
+var e = require('./socket_error');
+
 var pub = redis.createClient();
 var sub = redis.createClient();
 
@@ -14,53 +19,25 @@ module.exports = Notification;
 function Notification(io) {
 
     var actions = {};
-    actions.validateToken = validateToken;
     actions.onSubscribe = onSubscribe;
-    actions.onPrivateMessage = onPrivateMessage;
     actions.sendInfoToClient = sendInfoToClient;
 
-    io.use(actions.validateToken);
+    io.use(auth.validateToken);
 
     io.on('connection', function (socket) {
         console.log('client connected');
         socket.on('subscribe', actions.onSubscribe.bind(null, socket));
-        socket.on('private message', actions.onPrivateMessage);
+        socket.on('private message', chat.onPrivateMessage.bind(null, socket));
     });
 
     sub.on('message', actions.sendInfoToClient);
 
-    function validateToken(socket, next) {
-        var req = socket.request;
-        if (req._query && req._query.token) {
-            var token = req._query.token;
-            try {
-                jwt.decode(token, nconf.get('secret'));
-            } catch (err) {
-                return next(new Error('not authorized'));
-            }
-            return next();
-        } else {
-            return next(new Error('not authorized'))
-        }
-    }
-
-    function onPrivateMessage(data) {
-
-    }
-
     function onSubscribe(socket, data) {
         if (!data.channel)
-            return error(socket, 'missing params : channel');
-        var token = socket.handshake.query.token;
-        try {
-            var decoded = jwt.decode(token, nconf.get('secret'));
-        } catch (err) {
-            console.log('err jwt decode', err);
-            return notAuthorized(socket);
-        }
-        if (data.channel != decoded.sub) {
+            return e.error(socket, 'missing params : channel');
+        if (data.channel != socket.request.user._id) {
             console.log('error id');
-            return notAuthorized(socket);
+            return e.notAuthorized(socket);
         }
         socket.join(data.channel);
         sub.subscribe(data.channel);
@@ -68,17 +45,10 @@ function Notification(io) {
     }
 
     function sendInfoToClient(channel, data) {
-        var res = {channel: channel, news: JSON.parse(data)};
-        io.sockets.in(channel).emit('message', res);
-    }
-
-    function notAuthorized(socket) {
-        socket.emit('unauthorized');
-        socket.disconnect();
-    }
-
-    function error(socket, err) {
-        var e = new Error(err);
-        socket.emit('error', e);
+        //var res = {channel: channel, news: JSON.parse(data)};
+        if (JSON.stringify(data.type) === 'private message')
+            io.sockets.in(channel).emit(data.type, JSON.parse(data));
+        else
+            io.sockets.in(channel).emit('message', JSON.parse(data));
     }
 }
