@@ -55,8 +55,17 @@ function getPrivateMessage(req) {
             else {
                 if (data === null)
                     deferred.resolve(data);
-                else
-                    deferred.resolve(data.messages);
+                else {
+                    Model.User.populate(data, {
+                        path: 'messages.creator',
+                        select: 'name picture'
+                    }, function (err, data) {
+                        if (err)
+                            deferred.reject(err);
+                        else
+                            deferred.resolve(data.messages);
+                    });
+                }
             }
         });
     return deferred.promise;

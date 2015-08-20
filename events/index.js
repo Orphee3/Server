@@ -35,6 +35,8 @@ function Notification(io) {
     function onSubscribe(socket, data) {
         if (!data.channel)
             return e.error(socket, 'missing params : channel');
+        console.log('data.channel', data.channel);
+        console.log('socket.request.user_id', socket.request.user._id);
         if (data.channel != socket.request.user._id) {
             console.log('error id');
             return e.notAuthorized(socket);
@@ -45,10 +47,8 @@ function Notification(io) {
     }
 
     function sendInfoToClient(channel, data) {
-        //var res = {channel: channel, news: JSON.parse(data)};
-        if (JSON.stringify(data.type) === 'private message')
-            io.sockets.in(channel).emit(data.type, JSON.parse(data));
-        else
-            io.sockets.in(channel).emit('message', JSON.parse(data));
+        console.log('private message emit !');
+        var dataParsed = JSON.parse(data);
+        io.sockets.in(channel).emit(dataParsed.type, dataParsed);
     }
 }

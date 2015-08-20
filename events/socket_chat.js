@@ -54,7 +54,14 @@ function onPrivateMessage(socket, data) {
             type: 'private message',
             source: uSource,
             target: uTarget,
-            message: message
+            message: {
+                message: message.message,
+                dateCreation: message.dateCreation,
+                creator: {
+                    name: uSource.name,
+                    picture: uSource.picture
+                }
+            }
         }));
         pub.quit();
     }
