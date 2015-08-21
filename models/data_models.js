@@ -18,7 +18,8 @@ var UserSchema = mongoose.Schema({
     friends: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     isAdmin: {type: Boolean, default: false},
     flux: [{type: mongoose.Schema.Types.ObjectId, ref: 'Notification'}],
-    news: [{type: mongoose.Schema.Types.ObjectId, ref: 'Notification'}]
+    news: [{type: mongoose.Schema.Types.ObjectId, ref: 'Notification'}],
+    rooms: [{type: mongoose.Schema.Types.ObjectId, ref: 'Room'}]
 });
 
 var CreationSchema = mongoose.Schema({
@@ -69,8 +70,9 @@ var GroupSchema = mongoose.Schema({
 var RoomSchema = mongoose.Schema({
     name: {type: String},
     people: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+    peopleTmp: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     messages: [{type: mongoose.Schema.Types.ObjectId, ref: 'Message'}],
-    lastMessageDate: {type: Date},
+    lastMessageDate: {type: Date, default: Date.now},
     dateCreation: {type: Date, default: Date.now}
 });
 

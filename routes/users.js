@@ -77,6 +77,10 @@ router.get('/user/:id/lastNews', function (req, res, next) {
     utilities.useMiddleware(middleware.getLastNews, req, res, next);
 });
 
+router.get('/user/:id/rooms', function (req, res, next) {
+    utilities.useMiddleware(middleware.getRooms, req, res, next);
+});
+
 router.put('/user/:id',
     authorization.validateToken({secret: nconf.get('secret')}),
     utilities.isUserOrAdmin,
