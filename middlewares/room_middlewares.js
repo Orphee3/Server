@@ -3,11 +3,28 @@
  */
 
 var Model = require('../models/data_models');
+var User = require('./users_middlewares');
 var Q = require('q');
 
+exports.create = create;
 exports.findByNameOrCreate = findByNameOrCreate;
 exports.getPrivateMessage = getPrivateMessage;
 exports.update = update;
+
+function create(req) {
+    var deferred = Q.defer();
+
+    var room = new Model.Room();
+    room.people = req.body.people;
+    room.peopleTmp = req.body.peopleTmp;
+    room.save(function (err) {
+        if (err)
+            deferred.reject(err);
+        else
+            deferred.resolve(room);
+    });
+    return deferred.promise;
+}
 
 function findByNameOrCreate(idSource, idTarget) {
     var deferred = Q.defer();
@@ -25,8 +42,13 @@ function findByNameOrCreate(idSource, idTarget) {
                 newRoom.save(function (err) {
                     if (err)
                         deferred.reject(err);
-                    else
+                    else {
+                        [idSource, idTarget].forEach(function (id) {
+                            User.updateRef({params: {id: id}, body: {rooms: newRoom._id}})
+                                .catch(deferred.reject);
+                        });
                         deferred.resolve(newRoom);
+                    }
                 });
             }
         }

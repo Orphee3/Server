@@ -143,6 +143,13 @@ exports.getLastNews = function (req, res) {
     }
 };
 
+exports.getRooms = function (req) {
+    var offset = parseInt(req.query.offset);
+    var size = parseInt(req.query.size);
+
+    return utilities.getModelRefInfo(Model.User, req.params.id, {path: 'rooms', options: {skip: offset, limit: size}});
+};
+
 exports.update = function (req, res) {
     var deferred = Q.defer();
 
@@ -168,6 +175,32 @@ exports.update = function (req, res) {
             user.save(function (err, user) {
                 if (err)
                     deferred.reject(errMod.getError(err, 500));
+                else
+                    deferred.resolve(user);
+            });
+        }
+    });
+    return deferred.promise;
+};
+
+exports.updateRef = function (req) {
+    var deferred = Q.defer();
+
+    Model.User.findById(req.params.id, function (err, user) {
+        if (err)
+            deferred.reject(err);
+        else {
+            if (user === null) {
+                deferred.resolve(user);
+                return deferred.promise;
+            }
+            var fields = ['rooms'];
+            fields.forEach(function (field) {
+                if (req.body[field]) user[field].unshift(req.body[field]);
+            });
+            user.save(function (err, user) {
+                if (err)
+                    deferred.reject(err);
                 else
                     deferred.resolve(user);
             });
