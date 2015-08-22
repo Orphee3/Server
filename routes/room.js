@@ -19,4 +19,10 @@ router.get('/room/privateMessage/:id',
         utilities.useMiddleware(middleware.getPrivateMessage, req, res, next);
     });
 
+router.get('/room/:id/groupMessage',
+    authorization.validateToken({secret: nconf.get('secret')}),
+    function (req, res, next) {
+        utilities.useMiddleware(middleware.getGroupMessage, req, res, next);
+    });
+
 module.exports = router;
