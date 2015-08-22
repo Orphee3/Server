@@ -27,6 +27,8 @@ function Notification(io) {
     io.on('connection', function (socket) {
         console.log('client connected');
         socket.on('subscribe', actions.onSubscribe.bind(null, socket));
+        socket.on('create chat group', chat.onCreateChatGroup.bind(null, socket));
+        socket.on('group message', chat.onGroupMessage.bind(null, socket));
         socket.on('private message', chat.onPrivateMessage.bind(null, socket));
     });
 
@@ -47,7 +49,7 @@ function Notification(io) {
     }
 
     function sendInfoToClient(channel, data) {
-        console.log('private message emit !');
+        console.log('send info to client emit !');
         var dataParsed = JSON.parse(data);
         io.sockets.in(channel).emit(dataParsed.type, dataParsed);
     }
