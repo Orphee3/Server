@@ -25,25 +25,9 @@ exports.create = function (obj) {
 };
 
 exports.find = function (obj) {
-    var deferred = Q.defer();
-
-    Model.Notification.find(obj, function (err, notifs) {
-        if (err)
-            deferred.reject(errMod.getError(err, 500));
-        else
-            deferred.resolve(notifs);
-    });
-    return deferred.promise;
+    return Q(Model.Notification.find(obj).exec());
 };
 
 exports.delete = function (id) {
-    var deferred = Q.defer();
-
-    Model.Notification.remove({_id: id}, function (err) {
-        if (err)
-            deferred.reject(errMod.getError(err, 500));
-        else
-            deferred.resolve('delete notification');
-    });
-    return deferred.promise;
+    return Q(Model.Notification.remove({_id: id}).exec());
 };

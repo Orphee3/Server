@@ -29,15 +29,7 @@ function create(req) {
 }
 
 function getById(req) {
-    var deferred = Q.defer();
-
-    Model.Room.findById(req.params.id, function (err, room) {
-        if (err)
-            deferred.reject(err);
-        else
-            deferred.resolve(room);
-    });
-    return deferred.promise;
+    return Q(Model.Room.findById(req.params.id).exec());
 }
 
 function findByNameOrCreate(idSource, idTarget) {

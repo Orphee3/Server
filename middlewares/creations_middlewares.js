@@ -26,50 +26,23 @@ exports.create = function(req, res) {
 };
 
 exports.getAll = function(req, res) {
-    var deferred = Q.defer();
-
     var offset = parseInt(req.query.offset),
         size = parseInt(req.query.size);
 
-    Model.Creation.find({isPrivate: false})
-        .skip(offset)
-        .limit(size)
-        .exec(function(err, creations) {
-            if (err)
-                deferred.reject(errMod.getError(err, 500));
-            else
-                deferred.resolve(creations);
-        });
-    return deferred.promise;
+    return Q(Model.Creation.find({isPrivate: false}).skip(offset).limit(size).exec());
 };
 
 exports.getById = function(req, res) {
-    var deferred = Q.defer();
-
-    Model.Creation.findOne({_id: req.params.id, isPrivate: false}, function(err, creation) {
-        if (err)
-            deferred.reject(errMod.getError(err, 500));
-        else
-            deferred.resolve(creation);
-    });
-    return deferred.promise;
+    return Q(Model.Creation.findOne({_id: req.params.id, isPrivate: false}).exec());
 };
 
 exports.getByIdPrivate = function(req, res) {
-    var deferred = Q.defer();
-
     var query = {};
     if (req.user.isAdmin)
         query = {_id: req.params.id};
     else
         query = {_id: req.params.id, isPrivate: true, authUser: req.user._id};
-    Model.Creation.findOne(query, function(err, creation) {
-        if (err)
-            deferred.reject(errMod.getError(err, 500));
-        else
-            deferred.resolve(creation);
-    });
-    return deferred.promise;
+    return Q(Model.Creation.findOne(query).exec());
 };
 
 exports.getCreator = function(req, res) {
@@ -95,11 +68,10 @@ exports.update = function(req, res) {
                 deferred.resolve(creation);
                 return deferred.promise;
             }
-            if (req.body.name) creation.name = req.body.name;
-            if (req.body.creator) creation.creator = req.body.creator;
-            if (req.body.creatorGroup) creation.creatorGroup = req.body.creatorGroup;
-            if (req.body.nbLikes) creation.nbLikes = req.body.nbLikes;
-            if (req.body.comments) creation.comments = req.body.comments;
+            var fields = ['name', 'creator', 'creatorGroup', 'nbLikes', 'comments', 'isPrivate', 'authUser', 'url'];
+            fields.forEach(function (field) {
+                if (req.body[field]) creation[field] = req.body[field];
+            });
             creation.save(function(err, creation) {
                 if (err)
                     deferred.reject(errMod.getError(err, 500));
@@ -112,13 +84,5 @@ exports.update = function(req, res) {
 };
 
 exports.delete = function(req, res) {
-    var deferred = Q.defer();
-
-    Model.Creation.remove({_id : req.params.id}, function(err, creation) {
-        if (err)
-            deferred.reject(errMod.getError(err, 500));
-        else
-            deferred.resolve('creation deleted');
-    });
-    return deferred.promise;
+    return Q(Model.Creation.remove({_id: req.params.id}).exec());
 };

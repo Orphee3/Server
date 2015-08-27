@@ -26,33 +26,14 @@ exports.create = function(req, res) {
 };
 
 exports.getAll = function(req, res) {
-    var deferred = Q.defer();
-
     var offset = parseInt(req.query.offset),
         size = parseInt(req.query.size);
 
-    Model.Group.find()
-        .skip(offset)
-        .limit(size)
-        .exec(function(err, groups) {
-            if (err)
-                deferred.reject(errMod.getError(err, 500));
-            else
-                deferred.resolve(groups);
-        });
-    return deferred.promise;
+    return Q(Model.Group.find().skip(offset).limit(size).exec());
 };
 
 exports.getById = function(req, res) {
-    var deferred = Q.defer();
-
-    Model.Group.findById(req.params.id, function(err, group) {
-        if (err)
-            deferred.reject(errMod.getError(err, 500));
-        else
-            deferred.resolve(group);
-    });
-    return deferred.promise;
+    return Q(Model.Group.findById(req.params.id).exec());
 };
 
 exports.getMembers = function(req, res) {
@@ -89,13 +70,5 @@ exports.update = function(req, res) {
 };
 
 exports.delete = function(req, res) {
-    var deferred = Q.defer();
-
-    Model.Group.remove({_id: req.params.id}, function(err, group) {
-        if (err)
-            deferred.reject(errMod.getError(err, 500));
-        else
-            deferred.resolve('user deleted');
-    });
-    return deferred.promise;
+    return Q(Model.Group.remove({_id: req.params.id}).exec());
 };

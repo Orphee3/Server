@@ -56,20 +56,9 @@ exports.create = function (req, res) {
 };
 
 function getComments(req, query) {
-    var deferred = Q.defer();
     var offset = parseInt(req.query.offset),
         size = parseInt(req.query.size);
-
-    Model.Comment.find(query)
-        .skip(offset)
-        .limit(size)
-        .exec(function (err, comments) {
-            if (err)
-                deferred.reject(errMod.getError(err, 500));
-            else
-                deferred.resolve(comments);
-        });
-    return deferred.promise;
+    return Q(Model.Comment.find(query).skip(offset).limit(size).exec());
 }
 
 exports.getAll = function (req, res) {
@@ -77,15 +66,7 @@ exports.getAll = function (req, res) {
 };
 
 exports.getById = function (req, res) {
-    var deferred = Q.defer();
-
-    Model.Comment.findById(req.params.id, function (err, comment) {
-        if (err)
-            deferred.reject(errMod.getError(err, 500));
-        else
-            deferred.resolve(comment);
-    });
-    return deferred.promise;
+    return Q(Model.Comment.findById(req.params.id).exec());
 };
 
 exports.getCreator = function (req, res) {
@@ -97,20 +78,9 @@ exports.getCreationComments = function (req, res) {
 };
 
 exports.getSubComments = function (req, res) {
-    var deferred = Q.defer();
     var offset = parseInt(req.query.offset),
         size = parseInt(req.query.size);
-
-    Model.SubComment.find({parentId: req.params.id})
-        .skip(offset)
-        .limit(size)
-        .exec(function (err, subComments) {
-            if (err)
-                deferred.reject(errMod.getError(err, 500));
-            else
-                deferred.resolve(subComments);
-        });
-    return deferred.promise;
+    return Q(Model.SubComment.find({parentId: req.params.id}).skip(offset).limit(size).exec());
 };
 
 exports.update = function (req, res) {
@@ -137,13 +107,5 @@ exports.update = function (req, res) {
 };
 
 exports.delete = function (req, res) {
-    var deferred = Q.defer();
-
-    Model.Comment.remove({_id: req.params.id}, function (err, comment) {
-        if (err)
-            deferred.reject(errMod.getError(err, 500));
-        else
-            deferred.resolve('comment deleted');
-    });
-    return deferred.promise;
+    return Q(Model.Comment.remove({_id: req.params.id}).exec());
 };

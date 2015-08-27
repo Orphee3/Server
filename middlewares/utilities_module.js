@@ -40,7 +40,11 @@ exports.useMiddleware = function(middleware, req, res, next) {
                 return res.status(204).end();
             return res.status(200).json(data);
         })
-        .catch(function(err) {return res.status(err.status).json(err.message);})
+        .catch(function(err) {
+            if (err.status)
+                return res.status(err.status).json(err.message);
+            return res.status(500).json(err);
+        })
         .done();
 };
 

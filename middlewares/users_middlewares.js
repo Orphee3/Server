@@ -33,52 +33,22 @@ exports.create = function (req, res) {
 };
 
 exports.getAll = function (req, res) {
-    var deferred = Q.defer();
-
     var offset = parseInt(req.query.offset),
         size = parseInt(req.query.size);
 
-    Model.User.find()
-        .skip(offset)
-        .limit(size)
-        .exec(function (err, users) {
-            if (err)
-                deferred.reject(errMod.getError(err, 500));
-            else
-                deferred.resolve(users);
-        });
-    return deferred.promise;
+    return Q(Model.User.find().skip(offset).limit(size).exec());
 };
 
 exports.getById = function (req, res) {
-    var deferred = Q.defer();
-
-    Model.User.findById(req.params.id, function (err, user) {
-        if (err)
-            deferred.reject(errMod.getError(err, 500));
-        else
-            deferred.resolve(user);
-    });
-    return deferred.promise;
+    return Q(Model.User.findById(req.params.id).exec());
 };
 
 exports.getByName = function (req, res) {
-    var deferred = Q.defer();
-
     var offset = parseInt(req.query.offset);
     var size = parseInt(req.query.size);
 
     var nameCandidate = new RegExp('\^' + req.params.name, 'i');
-    Model.User.find({name: nameCandidate})
-        .skip(offset)
-        .limit(size)
-        .exec(function (err, users) {
-            if (err)
-                deferred.reject(errMod.getError(err, 500));
-            else
-                deferred.resolve(users);
-        });
-    return deferred.promise;
+    return Q(Model.User.find({name: nameCandidate}).skip(offset).limit(size).exec());
 };
 
 exports.getCreation = function (req, res) {
@@ -162,16 +132,11 @@ exports.update = function (req, res) {
                 deferred.resolve(user);
                 return deferred.promise;
             }
-            if (req.body.name) user.name = req.body.name;
-            if (req.body.username) user.username = req.body.username; //@TODO won't work if username already exist
-            if (req.body.password) user.password = req.body.password;
-            if (req.body.creation) user.creation = req.body.creation;
-            if (req.body.group) user.group = req.body.group;
-            if (req.body.likes) user.likes = req.body.likes;
-            if (req.body.comments) user.comments = req.body.comments;
-            if (req.body.friends) user.friends = req.body.friends;
-            if (req.body.flux) user.flux = req.body.flux;
-            if (req.body.news) user.news = req.body.news;
+            var fields = ['name', 'username', 'password', 'picture', 'creations', 'groups', 'likes', 'comments',
+                'friends', 'flux', 'news', 'rooms'];
+            fields.forEach(function (field) {
+                if (req.body[field]) user[field] = req.body[field];
+            });
             user.save(function (err, user) {
                 if (err)
                     deferred.reject(errMod.getError(err, 500));
@@ -210,13 +175,5 @@ exports.updateRef = function (req) {
 };
 
 exports.delete = function (req, res) {
-    var deferred = Q.defer();
-
-    Model.User.remove({_id: req.params.id}, function (err, user) {
-        if (err)
-            deferred.reject(errMod.getError(err, 500));
-        else
-            deferred.resolve('user deleted');
-    });
-    return deferred.promise;
+    return Q(Model.User.remove({_id: req.params.id}).exec());
 };
