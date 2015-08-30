@@ -140,7 +140,7 @@ module.exports = function (server) {
                 else deferred.resolve('no friend invitation');
             }
             function predicate(n) {
-                return n.type === 'friend' && JSON.stringify(n.userSource[0]._id === JSON.stringify(usersource._id));
+                return n.type === 'friend' && JSON.stringify(n.userSource[0]._id) === JSON.stringify(usersource._id);
             }
         }
     }
