@@ -20,7 +20,7 @@ exports.create = function(req, res) {
         if (err)
             deferred.reject(errMod.getError(err, 500));
         else
-            deferred.resolve('creation created');
+            deferred.resolve(creation);
     });
     return deferred.promise;
 };
@@ -43,6 +43,12 @@ exports.getByIdPrivate = function(req, res) {
     else
         query = {_id: req.params.id, isPrivate: true, authUser: req.user._id};
     return Q(Model.Creation.findOne(query).exec());
+};
+
+exports.getPopular = function (req, res) {
+    var offset = parseInt(req.query.offset),
+        size = parseInt(req.query.size);
+    return Q(Model.Creation.find({}, null, {sort: {nbLikes: -1}}).skip(offset).limit(size).exec());
 };
 
 exports.getCreator = function(req, res) {
