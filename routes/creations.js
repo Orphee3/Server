@@ -37,6 +37,10 @@ router.get('/creation/:id/private',
     utilities.useMiddleware(middleware.getByIdPrivate, req, res, next);
 });
 
+router.get('/creationPopular', function (req, res, next) {
+    utilities.useMiddleware(middleware.getPopular, req, res, next);
+});
+
 router.get('/creation/:id/creator', function(req, res, next) {
     utilities.useMiddleware(middleware.getCreator, req, res, next);
 });
