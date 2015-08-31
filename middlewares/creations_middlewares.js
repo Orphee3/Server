@@ -5,17 +5,28 @@
 var Q = require('q'),
     Model = require('../models/data_models'),
     errMod = require('./error_module.js'),
-    utilities = require('./utilities_module.js');
+    utilities = require('./utilities_module.js'),
+    User = require('./users_middlewares');
 
 exports.create = function(req, res) {
     var deferred = Q.defer(),
-        creation = new Model.Creation();
+        creation = new Model.Creation(),
+        promises;
 
     creation.name = req.body.name;
     if (req.body.dateCreation) creation.dateCreation = req.body.dateCreation;
     creation.creator = req.body.creator;
     creation.creatorGroup = req.body.creatorGroup;
-
+    if (req.body.creator) {
+        if (typeof req.body.creator === 'string') promises = [req.user_id];
+        else promises = req.body.creator;
+        Q.all(promises.map(function (u) {
+            return User.updateRef({params: {id: u}, body: {creations: creation._id}});
+        })).catch(function (err) {
+            deferred.reject(err);
+            return deferred.promise;
+        });
+    }
     creation.save(function(err) {
         if (err)
             deferred.reject(errMod.getError(err, 500));

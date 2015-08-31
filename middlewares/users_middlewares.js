@@ -159,7 +159,7 @@ exports.updateRef = function (req) {
                 deferred.resolve(user);
                 return deferred.promise;
             }
-            var fields = ['rooms'];
+            var fields = ['rooms', 'creations'];
             fields.forEach(function (field) {
                 if (req.body[field]) user[field].unshift(req.body[field]);
             });
