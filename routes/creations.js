@@ -19,7 +19,9 @@ else if (nconf.get('db') === 'mysql') {
 
 var router = express.Router();
 
-router.post('/creation', function(req, res, next) {
+router.post('/creation',
+    authorization.validateToken({secret: nconf.get('secret')}),
+    function(req, res, next) {
     utilities.useMiddleware(middleware.create, req, res, next);
 });
 
