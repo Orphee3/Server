@@ -18,7 +18,7 @@ exports.create = function(req, res) {
     creation.creator = req.body.creator;
     creation.creatorGroup = req.body.creatorGroup;
     if (req.body.creator) {
-        if (typeof req.body.creator === 'string') promises = [req.user_id];
+        if (typeof req.body.creator === 'string') promises = [req.user._id];
         else promises = req.body.creator;
         Q.all(promises.map(function (u) {
             return User.updateRef({params: {id: u}, body: {creations: creation._id}});
