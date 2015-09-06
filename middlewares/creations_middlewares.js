@@ -8,7 +8,7 @@ var Q = require('q'),
     utilities = require('./utilities_module.js'),
     User = require('./users_middlewares');
 
-exports.create = function(req, res) {
+exports.create = function (req, res) {
     var deferred = Q.defer(),
         creation = new Model.Creation(),
         promises;
@@ -27,7 +27,7 @@ exports.create = function(req, res) {
             return deferred.promise;
         });
     }
-    creation.save(function(err) {
+    creation.save(function (err) {
         if (err)
             deferred.reject(errMod.getError(err, 500));
         else
@@ -36,18 +36,18 @@ exports.create = function(req, res) {
     return deferred.promise;
 };
 
-exports.getAll = function(req, res) {
+exports.getAll = function (req, res) {
     var offset = parseInt(req.query.offset),
         size = parseInt(req.query.size);
 
     return Q(Model.Creation.find({isPrivate: false}).skip(offset).limit(size).exec());
 };
 
-exports.getById = function(req, res) {
+exports.getById = function (req, res) {
     return Q(Model.Creation.findOne({_id: req.params.id, isPrivate: false}).exec());
 };
 
-exports.getByIdPrivate = function(req, res) {
+exports.getByIdPrivate = function (req, res) {
     var query = {};
     if (req.user.isAdmin)
         query = {_id: req.params.id};
@@ -59,25 +59,33 @@ exports.getByIdPrivate = function(req, res) {
 exports.getPopular = function (req, res) {
     var offset = parseInt(req.query.offset),
         size = parseInt(req.query.size);
-    return Q(Model.Creation.find({}, null, {sort: {nbLikes: -1}}).skip(offset).limit(size).exec());
+    return Q(Model.Creation.find({}, null, {sort: {nbLikes: -1}})
+        .populate({
+            path: 'creator',
+            select: 'name',
+            options: {
+                skip: offset,
+                limit: size
+            }
+        }).exec());
 };
 
-exports.getCreator = function(req, res) {
+exports.getCreator = function (req, res) {
     return utilities.getModelRefInfo(Model.Creation, req.params.id, 'creator');
 };
 
-exports.getCreatorGroup = function(req, res) {
+exports.getCreatorGroup = function (req, res) {
     return utilities.getModelRefInfo(Model.Creation, req.params.id, 'creatorGroup')
 };
 
-exports.getComments = function(req, res) {
+exports.getComments = function (req, res) {
     return utilities.getModelRefInfo(Model.Creation, req.params.id, 'comments')
 };
 
-exports.update = function(req, res) {
+exports.update = function (req, res) {
     var deferred = Q.defer();
 
-    Model.Creation.findById(req.params.id, function(err, creation) {
+    Model.Creation.findById(req.params.id, function (err, creation) {
         if (err)
             deferred.reject(errMod.getError(err, 500));
         else {
@@ -89,7 +97,7 @@ exports.update = function(req, res) {
             fields.forEach(function (field) {
                 if (req.body[field]) creation[field] = req.body[field];
             });
-            creation.save(function(err, creation) {
+            creation.save(function (err, creation) {
                 if (err)
                     deferred.reject(errMod.getError(err, 500));
                 else
@@ -100,6 +108,6 @@ exports.update = function(req, res) {
     return deferred.promise;
 };
 
-exports.delete = function(req, res) {
+exports.delete = function (req, res) {
     return Q(Model.Creation.remove({_id: req.params.id}).exec());
 };
