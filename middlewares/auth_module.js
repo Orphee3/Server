@@ -44,7 +44,7 @@ module.exports = function (server) {
 
     function createToken(user) {
         var payload = {
-            exp: moment().add(1, 'day').unix(),
+            exp: moment().add(365, 'day').unix(),
             iat: moment().unix(),
             sub: user._id
         };
