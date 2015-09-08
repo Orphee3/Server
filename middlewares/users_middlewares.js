@@ -40,7 +40,7 @@ exports.getAll = function (req, res) {
 };
 
 exports.getById = function (req, res) {
-    return Q(Model.User.findById(req.params.id).exec());
+    return Q(Model.User.findById(req.params.id, req.params.projection).exec());
 };
 
 exports.getByName = function (req, res) {

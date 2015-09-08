@@ -37,7 +37,7 @@ function validateToken(option) {
             if (header.length == 2) {
                 if (/^Bearer$/i.test(header[0])) {
                     var decoded = jwt.decode(header[1], option.secret);
-                    user_middleware.getById({params: {id: decoded.sub}})
+                    user_middleware.getById(mockReq({params: {id: decoded.sub}}))
                         .then(function (user) {
                             if (!user)
                                 return res.status.json('User no longer exist', 401);
@@ -52,6 +52,12 @@ function validateToken(option) {
             }
         } else {
             return res.status(401).json('No authorization token was found', 401);
+        }
+        function mockReq(obj) {
+            if (nconf.get('db') === 'mysql') {
+                obj.mysql = req.mysql;
+            }
+            return obj;
         }
     };
 }

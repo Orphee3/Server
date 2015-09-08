@@ -12,8 +12,10 @@ if (nconf.get('db') === 'mongodb') {
     middleware = require('./users_middlewares');
     notifMiddleware = require('./notification_middlewares');
 }
-else if (nconf.get('db') === 'mysql')
+else if (nconf.get('db') === 'mysql') {
     middleware = require('./users_middlewares_mysql');
+    notifMiddleware = require('./notification_middlewares_mysql');
+}
 
 module.exports = function (server) {
 
@@ -29,70 +31,122 @@ module.exports = function (server) {
             utilities.useMiddleware(acceptFriend, req, res, next);
         });
 
-    function sendInvitation(source, target, deferred) {
-        notifMiddleware.create({type: 'friend', userSource: source})
-            .then(function (n) {
-                target.news.unshift(n._id);
-                target.save(function (err) {
-                    if (err) throw err;
-                    else {
-                        var redisPub = redis.createClient();
-                        redisPub.publish(target._id, JSON.stringify(n));
-                        redisPub.quit();
-                        deferred.resolve('ask friend ok');
-                    }
-                });
-            })
+    function sendInvitation(req, source, target, deferred) {
+
+        notifMiddleware.create({type: 'friend', userSource: source._id}, req)
+            .then(getUserNews)
+            .spread(updateTarget)
+            .spread(getUserSource)
+            .spread(publish)
             .catch(function (err) {
                 deferred.reject(errMod.getError(err, 500));
             });
+
+        function getUserNews(n) {
+            return [
+                n,
+                middleware.getNews(mockReq(req, {params: {id: target._id}, query: {offset: 0}}))
+            ];
+        }
+
+        function updateTarget(n, news) {
+            var listNews = _(news).pluck('_id').unshift(n._id).value();
+            return [
+                n,
+                middleware.update(mockReq(req, {params: {id: target._id}, body: {news: listNews}}))
+            ]
+        }
+
+        function getUserSource(n) {
+            return [
+                n,
+                middleware.getById(mockReq(req, {params: {id: n.userSource, projection: 'name, picture, dateCreation'}}))
+            ];
+        }
+
+        function publish(n, u) {
+            var pub = redis.createClient();
+            pub.publish(target._id, JSON.stringify({
+                type: n.type,
+                userSource: u,
+                dateCreation: n.dateCreation
+            }));
+            pub.quit();
+            deferred.resolve('ask friend ok');
+        }
     }
 
-    function acceptAndNotify(source, target, usFriends, utFriends, news, deffered) {
+    function acceptAndNotify(req, source, target, usFriends, utFriends, news, deffered) {
         var listUSourceId = _(usFriends).pluck('_id').push(target._id).value();
         var listUTargetId = _(utFriends).pluck('_id').push(source._id).value();
-        console.log('listUSourceId', listUSourceId);
-        console.log('listUTargetId', listUTargetId);
+
         var createNotification = [
-            notifMiddleware.create({type: 'newFriend', userSource: target}),
-            notifMiddleware.create({type: 'newFriend', userSource: source}),
-            middleware.update({params: {id: source._id}, body: {friends: listUSourceId}}),
-            middleware.update({params: {id: target._id}, body: {friends: listUTargetId}}),
-            notifMiddleware.delete(news[0]._id)
+            news,
+            notifMiddleware.create({type: 'newFriend', userSource: target._id}, req),
+            notifMiddleware.create({type: 'newFriend', userSource: source._id}, req),
+            middleware.getNews(mockReq(req, {params: {id: source._id}, query: {offset: 0}})),
+            middleware.getNews(mockReq(req, {params: {id: target._id}, query: {offset: 0}})),
+            middleware.update(mockReq(req, {params: {id: source._id}, body: {friends: listUSourceId}})),
+            middleware.update(mockReq(req, {params: {id: target._id}, body: {friends: listUTargetId}}))
         ];
         Q.all(createNotification)
             .spread(updateUsers)
-            .spread(sendMessage)
+            .spread(getUsers)
+            .spread(sendMessages)
             .catch(function (err) {
                 deffered.reject(errMod.getError(err, 500));
             });
 
-        function updateUsers(nSource, nTarget) {
-            source.news.unshift(nSource._id);
-            target.news.unshift(nTarget._id);
+        function updateUsers(news, nSource, nTarget, userSourceNews, userTargetNews) {
+            var sourceListNews = _(userSourceNews).pluck('_id').unshift(nSource._id).value();
+            var targetListNews = _(userTargetNews).pluck('_id').unshift(nTarget._id).value();
+
+            var id = _.findIndex(targetListNews, function (chr) {
+                return JSON.stringify(chr) === JSON.stringify(news[0]._id);
+            });
+
+            if (id > -1) {
+                targetListNews.splice(id, 1);
+            }
             return [
                 nSource,
                 nTarget,
-                middleware.update({params: {id: source._id}, body: {news: source.news}}),
-                middleware.update({params: {id: target._id}, body: {news: target.news}})
+                middleware.update(mockReq(req, {params: {id: source._id}, body: {news: sourceListNews}})),
+                middleware.update(mockReq(req, {params: {id: target._id}, body: {news: targetListNews}}))
             ];
         }
 
-        function sendMessage(nSource, nTarget) {
+        function getUsers(nSource, nTarget) {
+            return [
+                nSource,
+                nTarget,
+                middleware.getById(mockReq(req, {params: {id: nSource.userSource, projection: 'name picture dateCreation'}})),
+                middleware.getById(mockReq(req, {params: {id: nTarget.userSource, projection: 'name picture dateCreation'}}))
+            ];
+        }
+
+        function sendMessages(nSource, nTarget, us, ut) {
             var pub = redis.createClient();
-            pub.publish(source._id, JSON.stringify(nSource));
-            pub.publish(target._id, JSON.stringify(nTarget));
+
+            pub.publish(source._id, JSON.stringify({
+                type: nSource.type,
+                userSource: us
+            }));
+            pub.publish(target._id, JSON.stringify({
+                type: nTarget.type,
+                userSource: ut
+            }));
             pub.quit();
             deffered.resolve('ok');
         }
     }
 
-    function handleFriendRequest(source, target, type) {
+    function handleFriendRequest(req, source, target, type) {
         var deferred = Q.defer();
 
         var getUsers = [
-            middleware.getById({params: {id: target}}),
-            middleware.getById({params: {id: source}})
+            middleware.getById(mockReq(req, {params: {id: target}})),
+            middleware.getById(mockReq(req, {params: {id: source}}))
         ];
         Q.all(getUsers)
             .spread(getUsersFriends)
@@ -107,21 +161,22 @@ module.exports = function (server) {
             return [
                 usertarget,
                 usersource,
-                middleware.getFriends({params: {id: usertarget._id}}),
-                middleware.getFriends({params: {id: usersource._id}})
+                middleware.getFriends(mockReq(req, {params: {id: usertarget._id}})),
+                middleware.getFriends(mockReq(req, {params: {id: usersource._id}}))
             ];
         }
 
         function CheckIfFriends(usertarget, usersource, utFriends, usFriends) {
-            if (_.findIndex(utFriends, predicate.bind(null, usersource._id)) > -1
+            if (utFriends && usFriends
+                && _.findIndex(utFriends, predicate.bind(null, usersource._id)) > -1
                 && _.findIndex(usFriends, predicate.bind(null, usertarget._id)) > -1) {
                 deferred.resolve('already friend');
             } else {
                 return [
-                    middleware.getNews({
+                    middleware.getNews(mockReq(req, {
                         params: {id: usertarget._id},
                         query: {offset: 0}
-                    }),
+                    })),
                     usersource, usertarget, usFriends, utFriends
                 ];
             }
@@ -131,29 +186,40 @@ module.exports = function (server) {
         }
 
         function sendOrAcceptRequest(targetnews, usersource, usertarget, usfriends, utfriends) {
+            if (!targetnews) targetnews = [];
             var alreadySend = targetnews.filter(predicate);
             if (alreadySend.length > 0) {
                 if (type === 'ask') deferred.resolve('already send');
-                else acceptAndNotify(usersource, usertarget, usfriends, utfriends, alreadySend, deferred);
+                else acceptAndNotify(req, usersource, usertarget, usfriends, utfriends, alreadySend, deferred);
             } else {
-                if (type === 'ask') sendInvitation(usersource, usertarget, deferred);
+                if (type === 'ask') sendInvitation(req, usersource, usertarget, deferred);
                 else deferred.resolve('no friend invitation');
             }
             function predicate(n) {
-                return n.type === 'friend' && JSON.stringify(n.userSource[0]._id) === JSON.stringify(usersource._id);
+                if (nconf.get('db') === 'mysql') {
+                    return n.type === 'friend' && JSON.stringify(n.userSource) === JSON.stringify(usersource._id);
+                } else {
+                    return n.type === 'friend' && JSON.stringify(n.userSource) === JSON.stringify(usersource._id);
+                }
             }
         }
+    }
+
+    function mockReq(req, obj) {
+        if (req.mysql)
+            obj.mysql = req.mysql;
+        return obj;
     }
 
     function askFriend(req, res, next) {
         var source = req.user._id;
         var target = req.params.id;
-        return handleFriendRequest(source, target, 'ask');
+        return handleFriendRequest(req, source, target, 'ask');
     }
 
     function acceptFriend(req, res, next) {
         var source = req.params.id;
         var target = req.user._id;
-        return handleFriendRequest(source, target);
+        return handleFriendRequest(req, source, target);
     }
 };

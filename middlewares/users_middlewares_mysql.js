@@ -23,7 +23,7 @@ function handleCreate(connection, req, deferred) {
                 deferred.reject(errMod.getError(err, 500));
         }
         else
-            deferred.resolve('user created  ');
+            deferred.resolve('user created');
         connection.release();
     });
 }
@@ -74,8 +74,34 @@ function handleGetComments(connection, req, deferred) {
 }
 
 function handleGetFriends(connection, req, deferred) {
-    sqlMod.getAllRows(connection, 'SELECT _id, name, username, dateCreation ' +
+    sqlMod.getAllRows(connection, 'SELECT _id, name, username, picture, dateCreation ' +
         'FROM users WHERE _id in (SELECT user2_id FROM friends WHERE user1_id=' + req.params.id + ')', deferred);
+}
+
+//@todo get ref
+function handleGetFlux(connection, req, deferred) {
+    sqlMod.getAllRows(connection, 'SELECT notifications._id, notifications.type, notifications.media, notifications.userSource, notifications.dateCreation ' +
+        'FROM notifications INNER JOIN users_flux ON notifications._id = users_flux.notification_id INNER JOIN users ON users_flux.user_id = users._id ' +
+        'WHERE users_flux.user_id=' + req.params.id, deferred);
+}
+
+function handleGetFluxId(connection, req, deferred) {
+    sqlMod.getAllRows(connection, 'SELECT notifications._id ' +
+        'FROM notifications INNER JOIN users_flux ON notifications._id = users_flux.notification_id INNER JOIN users ON users_flux.user_id = users._id ' +
+        'WHERE users_flux.user_id=' + req.params.id, deferred);
+}
+
+//@todo get ref
+function handleGetNews(connection, req, deferred) {
+    sqlMod.getAllRows(connection, 'SELECT notifications._id, notifications.type, notifications.media, notifications.userSource, notifications.dateCreation ' +
+        'FROM notifications INNER JOIN users_news ON notifications._id = users_news.notification_id INNER JOIN users ON users_news.user_id = users._id ' +
+        'WHERE users_news.user_id=' + req.params.id, deferred);
+}
+
+function handleGetNewsId(connection, req, deferred) {
+    sqlMod.getAllRows(connection, 'SELECT notifications._id ' +
+        'FROM notifications INNER JOIN users_news ON notifications._id = users_news.notification_id INNER JOIN users ON users_news.user_id = users._id ' +
+        'WHERE users_news.user_id=' + req.params.id, deferred);
 }
 
 function handleUpdate(connection, req, deferred) {
@@ -88,6 +114,8 @@ function handleUpdate(connection, req, deferred) {
     if (req.body.likes) sqlMod.updateManyToManyRel(connection, 'users_likes', 'user_id', req.params.id, 'creation_id', req.body.likes, deferred);
     if (req.body.comments) sqlMod.updateManyToOneRel(connection, 'comments', 'user_id', req.params.id, req.body.comments, deferred);
     if (req.body.friends) sqlMod.updateManyToManyRel(connection, 'friends', 'user1_id', req.params.id, 'user2_id', req.body.friends, deferred);
+    if (req.body.flux) sqlMod.updateManyToManyRel(connection, 'users_flux', 'user_id', req.params.id, 'notification_id', req.body.flux, deferred);
+    if (req.body.news) sqlMod.updateManyToManyRel(connection, 'users_news', 'user_id', req.params.id, 'notification_id', req.body.news, deferred);
 
     if (data.name || data.username || data.password) sqlMod.updateOneToOne(connection, 'users', req.params.id, data, deferred);
 
@@ -154,6 +182,22 @@ exports.getComments = function (req, res) {
 
 exports.getFriends = function (req, res) {
     return sqlMod.handleConnection(handleGetFriends, req);
+};
+
+exports.getFlux = function (req, res) {
+    return sqlMod.handleConnection(handleGetFlux, req);
+};
+
+exports.getFluxId = function (req, res) {
+    return sqlMod.handleConnection(handleGetFluxId, req);
+};
+
+exports.getNews = function (req, res) {
+    return sqlMod.handleConnection(handleGetNews, req);
+};
+
+exports.getNewsId = function (req, res) {
+    return sqlMod.handleConnection(handleGetNewsId, req);
 };
 
 exports.update = function (req, res) {
