@@ -54,10 +54,10 @@ var CommentSchema = mongoose.Schema({
 
 var NotificationSchema = mongoose.Schema({
     type: {type: String},
-    media: [CreationSchema],
+    media: {type: mongoose.Schema.Types.ObjectId, ref: 'Creation'},
     viewed: {type: Boolean, default: false},
     dateCreation: {type: Date, default: Date.now},
-    userSource: [UserSchema]
+    userSource: {type: mongoose.Schema.Types.ObjectId, ref: 'User'}
 });
 
 var GroupSchema = mongoose.Schema({
