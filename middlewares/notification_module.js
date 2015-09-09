@@ -76,6 +76,7 @@ module.exports = function (server) {
 
         function notifyCreators(n, creators) {
             var redis = require('redis');
+            var pub = redis.createClient();
             var promises = creators.map(function (creator) {
                 return notifMiddleware.create(n, req)
                     .then(getCreatorNews.bind(null, creator))
@@ -85,6 +86,7 @@ module.exports = function (server) {
             });
             return Q.all(promises)
                 .then(function () {
+                    pub.quit();
                     res.status(200).json('notify ok');
                 });
 
@@ -107,20 +109,12 @@ module.exports = function (server) {
             }
 
             function notifyCreator(userUpdated, n, user, media) {
-                var pub = redis.createClient();
-                console.log(JSON.stringify({
-                    type: n.type,
-                    media: media,
-                    dateCreation: n.dateCreation,
-                    userSource: user
-                }));
                 pub.publish(userUpdated._id, JSON.stringify({
                     type: n.type,
                     media: media,
                     dateCreation: n.dateCreation,
                     userSource: user
                 }));
-                pub.quit();
             }
         }
 

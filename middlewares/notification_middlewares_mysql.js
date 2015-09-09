@@ -9,8 +9,6 @@ var Q = require('q'),
 exports.create = function (obj, req) {
     var deferred = Q.defer();
 
-    console.log('create obj', obj);
-
     req.mysql.getConnection(function (err, connection) {
         if (err) deferred.reject(errMod.getError(err, 500));
         else {
@@ -24,10 +22,8 @@ exports.create = function (obj, req) {
             if (obj.userSource._id) data.userSource = obj.userSource._id;
             else if (obj.userSource) data.userSource = obj.userSource;
             connection.query('INSERT INTO notifications SET ?', data, function (err, res) {
-                if (err) {
-                    console.log('err create', err);
+                if (err)
                     deferred.reject(errMod.getError(err, 500));
-                }
                 else {
                     data._id = res.insertId;
                     deferred.resolve(data);

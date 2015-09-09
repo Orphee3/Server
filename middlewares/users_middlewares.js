@@ -19,6 +19,7 @@ exports.create = function (req, res) {
     if (req.body.googleId) user.googleId = req.body.googleId;
     if (req.body.googleToken) user.googleToken = req.body.googleToken;
 
+
     user.save(function (err) {
         if (err) {
             if (err.code == 11000)
@@ -41,6 +42,14 @@ exports.getAll = function (req, res) {
 
 exports.getById = function (req, res) {
     return Q(Model.User.findById(req.params.id, req.params.projection).exec());
+};
+
+exports.getByFbId = function (req, res) {
+    return Q(Model.User.findOne({fbId: req.params.fbId}).exec());
+};
+
+exports.getByGoogleId = function (req, res) {
+    return Q(Model.User.findOne({googleId: req.params.googleId}).exec());
 };
 
 exports.getByName = function (req, res) {
