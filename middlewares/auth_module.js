@@ -171,20 +171,26 @@ module.exports = function (server) {
                 if (response.statusCode !== 200) {
                     return res.status(500).send({message: profile.error.message});
                 }
-                Model.User.findOne({fbId: profile.id}, function (err, existingUser) {
-                    if (existingUser) {
-                        var token = createToken(existingUser);
-                        return res.send({token: token, user: existingUser});
-                    }
-                    var user = new Model.User();
-                    user.fbId = profile.id;
-                    user.picture =  'https://graph.facebook.com/v2.3/' + profile.id + '/picture?type=large';
-                    user.name = profile.name;
-                    user.save(function () {
-                        var token = createToken(user);
-                        return res.send({token: token, user: user});
+                user_middleware.getByFbId({params: {fbId: profile.id}, mysql: req.mysql})
+                    .then(function (existingUser) {
+                        if (existingUser) {
+                            var token = createToken(existingUser);
+                            return res.send({token: token, user: existingUser});
+                        } else {
+                            return user_middleware.create({body: {
+                                fbId: profile.id,
+                                picture: 'https://graph.facebook.com/v2.3/' + profile.id + '/picture?type=large',
+                                name: profile.name
+                            }, mysql: req.mysql}).then(function (user) {
+                                var token = createToken(user);
+                                return res.send({token : token, user: user});
+                            });
+                        }
+                    })
+                    .catch(function (err) {
+                        if (err.statusCode) return res.status(err.statusCode).send(err.message);
+                        return res.status(500).send(err.message);
                     });
-                });
             });
         });
     });
@@ -209,20 +215,26 @@ module.exports = function (server) {
                 if (profile.error) {
                     return res.status(500).send({message: profile.error.message});
                 }
-                Model.User.findOne({googleId: profile.sub}, function (err, existingUser) {
-                    if (existingUser) {
-                        var token = createToken(existingUser);
-                        return res.send({token: token, user: existingUser});
-                    }
-                    var user = Model.User();
-                    user.googleId = profile.sub;
-                    user.picture = user.picture.replace('sz=50', 'sz=200');
-                    user.name = profile.name;
-                    user.save(function () {
-                        var token = createToken(user);
-                        return res.send({token: token, user: user});
+                user_middleware.getByGoogleId({params: {googleId: profile.sub}, mysql: req.mysql})
+                    .then(function (existingUser) {
+                        if (existingUser) {
+                            var token = createToken(existingUser);
+                            return res.send({token: token, user: existingUser});
+                        } else {
+                            return user_middleware.create({body: {
+                                googleId: profile.sub,
+                                picture: profile.picture.replace('sz=50', 'sz=200'),
+                                name: profile.name
+                            }, mysql: req.mysql}).then(function (user) {
+                                var token = createToken(user);
+                                return res.send({token : token, user: user});
+                            });
+                        }
+                    })
+                    .catch(function (err) {
+                        if (err.statusCode) return res.status(err.statusCode).send(err.message);
+                        return res.status(500).send(err.message);
                     });
-                });
             });
         });
     });

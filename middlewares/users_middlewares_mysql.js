@@ -7,23 +7,24 @@ var errMod = require('./error_module.js'),
 
 function handleCreate(connection, req, deferred) {
     var data = {
-        name: req.body.name,
         username: req.body.username,
         password: sqlMod.hashMysqlPassword(req.body.password)
     };
+    if (req.body.name) data.name = req.body.name;
     if (req.body.fbId) data.fbId = req.body.fbId;
-    if (req.body.fbToken) data.fbToken = req.body.fbToken;
     if (req.body.googleId) data.googleId = req.body.googleId;
-    if (req.body.googleToken) data.googleToken = req.body.googleToken;
-    connection.query('INSERT INTO users SET ?', data, function (err) {
+    if (req.body.picture) data.picture = req.body.picture;
+    connection.query('INSERT INTO users SET ?', data, function (err, res) {
         if (err) {
             if (err.code === 'ER_DUP_ENTRY')
                 deferred.reject(errMod.getError(err, 409));
             else
                 deferred.reject(errMod.getError(err, 500));
         }
-        else
-            deferred.resolve('user created');
+        else {
+            data._id = res.insertId;
+            deferred.resolve(data);
+        }
         connection.release();
     });
 }
@@ -36,6 +37,14 @@ function handleGetAll(connection, req, deferred) {
 
 function handleGetById(connection, req, deferred) {
     sqlMod.getOneRow(connection, 'SELECT * FROM users WHERE _id=' + req.params.id, deferred);
+}
+
+function handleGetByFbId(connection, req, deferred) {
+    sqlMod.getOneRow(connection, 'SELECT * FROM users WHERE fbId=' + req.params.fbId, deferred);
+}
+
+function handleGetByGoogleId(connection , req, deferred) {
+    sqlMod.getOneRow(connection, 'SELECT * FROM users WHERE googleId=' + req.params.googleId, deferred);
 }
 
 function handleGetByName(connection, req, deferred) {
@@ -109,28 +118,17 @@ function handleUpdate(connection, req, deferred) {
     if (req.body.name) data.name = req.body.name;
     if (req.body.username) data.username = req.body.username;
     if (req.body.password) data.password = sqlMod.hashMysqlPassword(req.body.password);
-    if (req.body.creation) sqlMod.updateManyToManyRel(connection, 'users_creations', 'user_id', req.params.id, 'creation_id', req.body.creation, deferred);
-    if (req.body.group) sqlMod.updateManyToManyRel(connection, 'users_groups', 'user_id', req.params.id, 'group_id', req.body.group, deferred);
+    if (req.body.picture) data.picture = req.body.picture;
+    if (req.body.creations) sqlMod.updateManyToManyRel(connection, 'users_creations', 'user_id', req.params.id, 'creation_id', req.body.creations, deferred);
+    if (req.body.groups) sqlMod.updateManyToManyRel(connection, 'users_groups', 'user_id', req.params.id, 'group_id', req.body.groups, deferred);
     if (req.body.likes) sqlMod.updateManyToManyRel(connection, 'users_likes', 'user_id', req.params.id, 'creation_id', req.body.likes, deferred);
     if (req.body.comments) sqlMod.updateManyToOneRel(connection, 'comments', 'user_id', req.params.id, req.body.comments, deferred);
     if (req.body.friends) sqlMod.updateManyToManyRel(connection, 'friends', 'user1_id', req.params.id, 'user2_id', req.body.friends, deferred);
     if (req.body.flux) sqlMod.updateManyToManyRel(connection, 'users_flux', 'user_id', req.params.id, 'notification_id', req.body.flux, deferred);
     if (req.body.news) sqlMod.updateManyToManyRel(connection, 'users_news', 'user_id', req.params.id, 'notification_id', req.body.news, deferred);
 
-    if (data.name || data.username || data.password) sqlMod.updateOneToOne(connection, 'users', req.params.id, data, deferred);
+    if (data.name || data.username || data.password || data.picture) sqlMod.updateOneToOne(connection, 'users', req.params.id, data, deferred);
 
-
-    /*connection.query('SELECT * FROM users WHERE _id = ?', req.params.id, function(err, rows) {
-     if (err)
-     deferred.reject(errMod.getError(err, 500));
-     else {
-     if (rows.length === 0)
-     deferred.resolve(null);
-     else
-     deferred.resolve(rows[0]);
-     }
-     connection.release();
-     });*/
     handleGetById(connection, req, deferred);
 }
 
@@ -154,6 +152,14 @@ exports.getAll = function (req, res) {
 
 exports.getById = function (req, res) {
     return sqlMod.handleConnection(handleGetById, req);
+};
+
+exports.getByFbId = function (req, res) {
+    return sqlMod.handleConnection(handleGetByFbId, req);
+};
+
+exports.getByGoogleId = function (req, res) {
+    return sqlMod.handleConnection(handleGetByGoogleId, req);
 };
 
 exports.getByName = function (req, res) {
