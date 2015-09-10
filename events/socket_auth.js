@@ -19,7 +19,7 @@ function validateToken(socket, next) {
         } catch (err) {
             return next(new Error('not authorized'));
         }
-        User.getById({params: {id: decoded.sub}})
+        User.getById({params: {id: decoded.sub}, mysql: req.mysql})
             .then(function (user) {
                 if (!user) return next(new Error('user does not exist'));
                 req.user = user;

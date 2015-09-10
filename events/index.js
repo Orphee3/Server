@@ -6,6 +6,7 @@ var fs = require('fs');
 var nconf = require('nconf');
 var jwt = require('jwt-simple');
 var redis = require('redis');
+var mysql = require('mysql');
 
 var auth = require('./socket_auth');
 var chat = require('./socket_chat');
@@ -22,6 +23,19 @@ function Notification(io) {
     actions.onSubscribe = onSubscribe;
     actions.sendInfoToClient = sendInfoToClient;
 
+    if (nconf.get('db') === 'mysql') {
+        var pool = mysql.createPool({
+            host: 'localhost',
+            user: 'root',
+            password: 'superphung',
+            database: 'Orphee'
+        });
+        io.use(function (socket, next) {
+            var req = socket.request;
+            req.mysql = pool;
+            next();
+        });
+    }
     io.use(auth.validateToken);
 
     io.on('connection', function (socket) {
