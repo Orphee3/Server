@@ -61,18 +61,19 @@ exports.getByName = function (req, res) {
 };
 
 exports.getCreation = function (req, res) {
-    return utilities.getModelRefInfo(Model.User, req.params.id, {path: 'creation', match: {isPrivate: false}});
+    return utilities.getModelRefInfo(Model.User, req.params.id, {path: 'creations', match: {isPrivate: false}});
+    //return utilities.getModelRefInfo(Model.User, req.params.id, 'creation');
 };
 
 exports.getCreationPrivate = function (req, res) {
     return utilities.getModelRefInfo(Model.User, req.params.id, {
-        path: 'creation',
+        path: 'creations',
         match: {isPrivate: true, authUser: req.user._id}
     });
 };
 
 exports.getGroup = function (req, res) {
-    return utilities.getModelRefInfo(Model.User, req.params.id, 'group');
+    return utilities.getModelRefInfo(Model.User, req.params.id, 'groups');
 };
 
 exports.getLikes = function (req, res) {
