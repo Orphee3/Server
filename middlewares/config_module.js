@@ -10,6 +10,7 @@ module.exports = function(nconf, AWS) {
     nconf.defaults({
         'db': 'mongodb'
         //'db': 'mysql'
+        //'db': 'rethink'
     });
 
     AWS.config.update({

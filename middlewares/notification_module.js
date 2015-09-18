@@ -21,6 +21,11 @@ else if (nconf.get('db') === 'mysql') {
     userMiddleware = require('./users_middlewares_mysql');
     notifMiddleware = require('./notification_middlewares_mysql');
 }
+else if (nconf.get('db') === 'rethink') {
+    creationMiddleware = require('./rethink/creations_rethink');
+    userMiddleware = require('./rethink/users_rethink');
+    notifMiddleware = require('./rethink/notification_rethink');
+}
 
 module.exports = function (server) {
     server.get('/api/notify/:type/:id',
@@ -57,6 +62,9 @@ module.exports = function (server) {
                     if (nconf.get('db') === 'mongodb') {
                         friend.flux.unshift(n);
                         return saveModel(friend);
+                    } else if (nconf.get('db') === 'rethink') {
+                        friend.flux.unshift(n._id);
+                        return userMiddleware.update(mockReq({params: {id: friend._id}, body: {flux: friend.flux}}));
                     } else if (nconf.get('db') === 'mysql') {
                         return userMiddleware.getFlux(mockReq({params: {id: friend._id}}))
                             .then(function (flux) {
@@ -133,6 +141,8 @@ module.exports = function (server) {
         function mockReq(obj) {
             if (nconf.get('db') === 'mysql') {
                 obj.mysql = req.mysql;
+            } else if (req.rdb) {
+                obj.rdb = req.rdb;
             }
             return obj;
         }

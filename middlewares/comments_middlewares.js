@@ -19,9 +19,17 @@ exports.create = function (req, res) {
                 comment.creator = req.body.creator;
                 comment.message = req.body.message;
 
-                comment.save(function (err) {
+                comment.save(function (err, c) {
                     if (err) deferred.reject(errMod.getError(err, 500));
-                    else deferred.resolve(comment)
+                    else {
+                        Model.Comment.findById(c._id).populate({
+                            path: 'creator',
+                            select: 'name picture'
+                        }).exec(function (err, data) {
+                            if (err) deferred.reject(err);
+                            else deferred.resolve(data);
+                        });
+                    }
                 });
             } else {
                 exports.getById({params: {id: req.body.parentId}}, res)
@@ -74,7 +82,17 @@ exports.getCreator = function (req, res) {
 };
 
 exports.getCreationComments = function (req, res) {
-    return getComments(req, {creation: req.params.id});
+    var offset = parseInt(req.query.offset),
+        size = parseInt(req.query.size);
+    return Q(Model.Comment.find({creation: req.params.id})
+        .populate({
+            path: 'creator',
+            select: 'name picture',
+            options: {
+                skip: offset,
+                limit: size
+            }
+        }).exec());
 };
 
 exports.getSubComments = function (req, res) {

@@ -10,6 +10,7 @@ var AWS = require('aws-sdk');
 var nconf = require('nconf');
 
 require('./middlewares/config_module')(nconf, AWS);
+var r = require('./middlewares/rethink/rethink_module');
 
 var app = express();
 
@@ -27,7 +28,7 @@ if(nconf.get('db') === 'mongodb') {
 else if (nconf.get('db') === 'mysql') {
     var pool = mysql.createPool({
         host: 'localhost',
-        user: 'superphung',
+        user: 'root',
         password: 'superphung',
         database: 'Orphee'
     });
@@ -36,6 +37,9 @@ else if (nconf.get('db') === 'mysql') {
         next();
     });
 }
+
+if (nconf.get('db') === 'rethink')
+    app.use(r.createConnection);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -60,7 +64,8 @@ app.use('/api', comments);
 app.use('/api', groups);
 app.use('/api', room);
 
-
+if (nconf.get('db') === 'rethink')
+    app.use(r.closeConnection);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

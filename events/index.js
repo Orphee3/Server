@@ -7,6 +7,7 @@ var nconf = require('nconf');
 var jwt = require('jwt-simple');
 var redis = require('redis');
 var mysql = require('mysql');
+var r = require('rethinkdb');
 
 var auth = require('./socket_auth');
 var chat = require('./socket_chat');
@@ -36,6 +37,19 @@ function Notification(io) {
             next();
         });
     }
+
+    if (nconf.get('db') === 'rethink') {
+        io.use(function (socket, next) {
+            var req = socket.request;
+            r.connect({
+                db: 'orphee'
+            }).then(function (conn) {
+                req.rdb = conn;
+                next();
+            });
+        });
+    }
+
     io.use(auth.validateToken);
 
     io.on('connection', function (socket) {

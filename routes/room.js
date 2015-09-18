@@ -9,6 +9,8 @@ var middleware;
 
 if (nconf.get('db') === 'mongodb') {
     middleware = require('../middlewares/room_middlewares');
+} else if (nconf.get('db') === 'rethink') {
+    middleware = require('../middlewares/rethink/room_rethink');
 }
 
 var router = express.Router();

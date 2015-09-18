@@ -62,12 +62,8 @@ exports.getPopular = function (req, res) {
     return Q(Model.Creation.find({}, null, {sort: {nbLikes: -1}})
         .populate({
             path: 'creator',
-            select: 'name picture',
-            options: {
-                skip: offset,
-                limit: size
-            }
-        }).exec());
+            select: 'name picture'
+        }).skip(offset).limit(size).exec());
 };
 
 exports.getCreator = function (req, res) {

@@ -7,10 +7,12 @@ var middleware;
 if (nconf.get('db') === 'mongodb') {
     middleware = require('../middlewares/users_middlewares');
     console.log('use mongodb users middleware');
-}
-else if (nconf.get('db') === 'mysql') {
+} else if (nconf.get('db') === 'mysql') {
     middleware = require('../middlewares/users_middlewares_mysql');
     console.log('use mysql users middleware');
+} else if (nconf.get('db') === 'rethink') {
+    middleware = require('../middlewares/rethink/users_rethink');
+    console.log('use rethink users middleware');
 }
 
 var router = express.Router();

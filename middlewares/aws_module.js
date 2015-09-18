@@ -6,6 +6,7 @@ var middleware;
 
 if (nconf.get('db') === 'mongodb') middleware = require('./creations_middlewares');
 else if (nconf.get('db') === 'mysql') middleware = require('./creations_middlewares_mysql');
+else if (nconf.get('db') === 'rethink') middleware = require('./rethink/creations_rethink');
 
 module.exports = function (server, AWS) {
     var s3 = new AWS.S3();
