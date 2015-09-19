@@ -16,6 +16,10 @@ else if (nconf.get('db') === 'mysql') {
     middleware = require('./users_middlewares_mysql');
     notifMiddleware = require('./notification_middlewares_mysql');
 }
+else if (nconf.get('db') === 'rethink') {
+    middleware = require('./rethink/users_rethink');
+    notifMiddleware = require('./rethink/notification_rethink');
+}
 
 module.exports = function (server) {
 
@@ -60,7 +64,7 @@ module.exports = function (server) {
         function getUserSource(n) {
             return [
                 n,
-                middleware.getById(mockReq(req, {params: {id: n.userSource, projection: 'name, picture, dateCreation'}}))
+                middleware.getById(mockReq(req, {params: {id: n.userSource, projection: 'name picture dateCreation'}}))
             ];
         }
 
@@ -208,6 +212,8 @@ module.exports = function (server) {
     function mockReq(req, obj) {
         if (req.mysql)
             obj.mysql = req.mysql;
+        else if (req.rdb)
+            obj.rdb = req.rdb;
         return obj;
     }
 

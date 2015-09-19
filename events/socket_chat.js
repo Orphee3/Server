@@ -2,13 +2,22 @@
  * Created by superphung on 8/17/15.
  */
 
-var User = require('../middlewares/users_middlewares');
-var Room = require('../middlewares/room_middlewares');
-var Message = require('../middlewares/message_middlewares');
-
 var redis = require('redis');
 var e = require('./socket_error');
 var Q = require('q');
+var nconf = require('nconf');
+
+var User, Room, Message;
+
+if (nconf.get('db') === 'mongodb') {
+    User = require('../middlewares/users_middlewares');
+    Room = require('../middlewares/room_middlewares');
+    Message = require('../middlewares/message_middlewares');
+} else if (nconf.get('db') === 'rethink') {
+    User = require('../middlewares/rethink/users_rethink');
+    Room = require('../middlewares/rethink/room_rethink');
+    Message = require('../middlewares/rethink/message_rethink');
+}
 
 exports.onPrivateMessage = onPrivateMessage;
 exports.onGroupMessage = onGroupMessage;
@@ -99,11 +108,12 @@ function onGroupMessage(socket, data) {
 }
 
 function onPrivateMessage(socket, data) {
+    var req = socket.request;
     if (!data.to || !data.message)
         return e.error(socket, 'missing params');
     var getUsers = [
-        User.getById({params: {id: socket.request.user._id}}),
-        User.getById({params: {id: data.to}})
+        User.getById({rdb: req.rdb, params: {id: socket.request.user._id}}),
+        User.getById({rdb: req.rdb, params: {id: data.to}})
     ];
     Q.all(getUsers)
         .spread(getRoomAndMessage.bind(null, data.message))
@@ -118,8 +128,8 @@ function onPrivateMessage(socket, data) {
         return [
             uSource,
             uTarget,
-            Room.findByNameOrCreate(socket.request.user._id, data.to),
-            Message.create({body: {creator: uSource._id, message: message}})
+            Room.findByNameOrCreate(socket.request.user._id, data.to, {rdb: req.rdb}),
+            Message.create({rdb: req.rdb, body: {creator: uSource._id, message: message}})
         ];
     }
 
@@ -130,7 +140,7 @@ function onPrivateMessage(socket, data) {
             uSource,
             uTarget,
             message,
-            Room.update({params: {id: room._id}, body: {messages: roomMessages, lastMessageDate: message.dateCreation}})
+            Room.update({rdb: req.rdb, params: {id: room._id}, body: {messages: roomMessages, lastMessageDate: message.dateCreation}})
         ];
     }
 

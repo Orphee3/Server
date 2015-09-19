@@ -7,6 +7,7 @@ var nconf = require('nconf');
 var User;
 if (nconf.get('db') === 'mongodb') User = require('../middlewares/users_middlewares');
 else if (nconf.get('db') === 'mysql') User = require('../middlewares/users_middlewares_mysql');
+else if (nconf.get('db') === 'rethink') User = require('../middlewares/rethink/users_rethink');
 
 exports.validateToken = validateToken;
 
@@ -19,7 +20,7 @@ function validateToken(socket, next) {
         } catch (err) {
             return next(new Error('not authorized'));
         }
-        User.getById({params: {id: decoded.sub}, mysql: req.mysql})
+        User.getById({params: {id: decoded.sub}, mysql: req.mysql, rdb: req.rdb})
             .then(function (user) {
                 if (!user) return next(new Error('user does not exist'));
                 req.user = user;

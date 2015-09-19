@@ -17,6 +17,11 @@ else if (nconf.get('db') === 'mysql') {
     console.log('use mysql groups middleware');
 }
 
+else if (nconf.get('db') === 'rethink') {
+    middleware = require('../middlewares/rethink/groups_rethink');
+    console.log('use rethink groups middleware');
+}
+
 var router = express.Router();
 
 router.post('/group', function(req, res, next) {

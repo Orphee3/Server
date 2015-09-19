@@ -9,6 +9,7 @@ var nconf = require('nconf');
 var user_middleware;
 if (nconf.get('db') === 'mongodb') user_middleware = require('./users_middlewares');
 else if (nconf.get('db') === 'mysql') user_middleware = require('./users_middlewares_mysql');
+else if (nconf.get('db') === 'rethink') user_middleware = require('./rethink/users_rethink');
 
 exports.checkTokenExpiration = checkTokenExpiration;
 exports.validateToken = validateToken;
@@ -37,7 +38,7 @@ function validateToken(option) {
             if (header.length == 2) {
                 if (/^Bearer$/i.test(header[0])) {
                     var decoded = jwt.decode(header[1], option.secret);
-                    user_middleware.getById(mockReq({params: {id: decoded.sub}}))
+                    user_middleware.getById(mockReq({rdb: req.rdb, params: {id: decoded.sub}}))
                         .then(function (user) {
                             if (!user)
                                 return res.status.json('User no longer exist', 401);

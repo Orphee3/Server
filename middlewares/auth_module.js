@@ -2,6 +2,8 @@
  * Created by Eric on 08/04/2015.
  */
 
+var r = require('rethinkdb');
+var Q = require('q');
 var Model = require('../models/data_models');
 var bcrypt = require('bcrypt-nodejs');
 var passport = require('passport');
@@ -16,6 +18,7 @@ var request = require('request');
 var authorization = require('./authorization_module');
 if (nconf.get('db') === 'mongodb') user_middleware = require('./users_middlewares');
 else if (nconf.get('db') === 'mysql') user_middleware = require('./users_middlewares_mysql');
+else if (nconf.get('db') === 'rethink') user_middleware = require('./rethink/users_rethink');
 
 var SALT_WORK_FACTOR = 10;
 
@@ -101,6 +104,29 @@ module.exports = function (server) {
             });
     }
 
+    function loginRethink(req, credentials, done) {
+        r.table('users')
+            .filter(function (doc) {
+                return doc('username').eq(credentials.username);
+            })
+            .run(req.rdb)
+            .then(function (res) {
+                return Q(res.toArray());
+            })
+            .then(function (res) {
+                if (!res[0])
+                    return done(null, false, {message: 'User does not exist.'});
+                comparePassword(res[0], credentials.password, function (err, isMatch) {
+                    if (err)
+                        return done(err);
+                    if (!isMatch)
+                        return done(null, false, {message: 'Invalid password'});
+                    return done(null, res[0]);
+                });
+            })
+            .catch(done);
+    }
+
     passport.use('bearer-login', new BearerStrategy({
         passReqToCallback: true
     }, function (req, token, done) {
@@ -116,6 +142,8 @@ module.exports = function (server) {
             loginMongodb(credentials, done);
         else if (nconf.get('db') === 'mysql')
             loginMysql(req, credentials, done);
+        else if (nconf.get('db') === 'rethink')
+            loginRethink(req, credentials, done);
     }));
 
     passport.use('local-register', new LocalStrategy({
@@ -171,7 +199,7 @@ module.exports = function (server) {
                 if (response.statusCode !== 200) {
                     return res.status(500).send({message: profile.error.message});
                 }
-                user_middleware.getByFbId({params: {fbId: profile.id}, mysql: req.mysql})
+                user_middleware.getByFbId({params: {fbId: profile.id}, mysql: req.mysql, rdb: req.rdb})
                     .then(function (existingUser) {
                         if (existingUser) {
                             var token = createToken(existingUser);
@@ -181,7 +209,7 @@ module.exports = function (server) {
                                 fbId: profile.id,
                                 picture: 'https://graph.facebook.com/v2.3/' + profile.id + '/picture?type=large',
                                 name: profile.name
-                            }, mysql: req.mysql}).then(function (user) {
+                            }, mysql: req.mysql, rdb: req.rdb}).then(function (user) {
                                 var token = createToken(user);
                                 return res.send({token : token, user: user});
                             });
@@ -215,7 +243,7 @@ module.exports = function (server) {
                 if (profile.error) {
                     return res.status(500).send({message: profile.error.message});
                 }
-                user_middleware.getByGoogleId({params: {googleId: profile.sub}, mysql: req.mysql})
+                user_middleware.getByGoogleId({params: {googleId: profile.sub}, mysql: req.mysql, rdb: req.rdb})
                     .then(function (existingUser) {
                         if (existingUser) {
                             var token = createToken(existingUser);
@@ -225,7 +253,7 @@ module.exports = function (server) {
                                 googleId: profile.sub,
                                 picture: profile.picture.replace('sz=50', 'sz=200'),
                                 name: profile.name
-                            }, mysql: req.mysql}).then(function (user) {
+                            }, mysql: req.mysql, rdb: req.rdb}).then(function (user) {
                                 var token = createToken(user);
                                 return res.send({token : token, user: user});
                             });

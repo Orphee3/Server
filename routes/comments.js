@@ -17,6 +17,10 @@ else if (nconf.get('db') === 'mysql') {
     middleware = require('../middlewares/comments_middlewares_mysql');
     console.log('use mysql comments middleware');
 }
+else if (nconf.get('db') === 'rethink') {
+    middleware = require('../middlewares/rethink/comments_rethink');
+    console.log('use rethink comments middlewares');
+}
 
 var router = express.Router();
 
