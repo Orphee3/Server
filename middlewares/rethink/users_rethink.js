@@ -6,6 +6,7 @@ var r = require('rethinkdb');
 var Q = require('q');
 
 var rM = require('./rethink_module');
+var errMod = require('../error_module');
 
 exports.create = create;
 exports.getAll = getAll;
@@ -35,10 +36,21 @@ function create(req, res, next) {
         data[field] = [];
     });
     return r.table('users')
-        .insert(data, {returnChanges: true})
+        .filter(r.row('username').eq(req.body.username))
+        .limit(1)
         .run(req.rdb)
-        .then(function (result) {
-            return Q(result.changes[0].new_val);
+        .then(rM.resolveArray)
+        .then(function (res) {
+            if (res.length)
+                throw errMod.getError('user already exist', 409);
+            else
+                return r.table('users')
+                    .insert(data, {returnChanges: true})
+                    .run(req.rdb)
+                    .then(function (result) {
+                        return Q(result.changes[0].new_val);
+                    })
+                    .catch(rM.reject);
         })
         .catch(rM.reject);
 }
@@ -185,8 +197,8 @@ function getRooms(req) {
         .get(req.params.id)
         .run(req.rdb)
         .then(function (user) {
-            return Q.all(user.rooms.map(function (r) {
-                return r.table('rooms').get(r).run(req.rdb).then(rM.resolve);
+            return Q.all(user.rooms.map(function (room) {
+                return r.table('rooms').get(room).run(req.rdb).then(rM.resolve);
             }));
         })
         .spread(rM.resolveArgs)

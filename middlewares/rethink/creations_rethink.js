@@ -13,6 +13,7 @@ exports.getAll = getAll;
 exports.getById = getById;
 exports.getPopular = getPopular;
 exports.getCreator = getCreator;
+exports.update = update;
 
 function create(req, res, next) {
     var data = {};
@@ -130,6 +131,7 @@ function update(req) {
         .update(data, {returnChanges: true})
         .run(req.rdb)
         .then(function (res) {
+            if (res.unchanged) return Q(null);
             return Q.resolve(res.changes[0].new_val);
         })
         .catch(rM.reject);
