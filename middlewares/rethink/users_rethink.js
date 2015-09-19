@@ -17,6 +17,7 @@ exports.getCreation = getCreation;
 exports.getFriends = getFriends;
 exports.getFlux = getFlux;
 exports.getNews = getNews;
+exports.getRooms = getRooms;
 exports.update = update;
 exports.updateRef = updateRef;
 
@@ -180,7 +181,16 @@ function getLastNews(req) {
 }
 
 function getRooms(req) {
-
+    return r.table('users')
+        .get(req.params.id)
+        .run(req.rdb)
+        .then(function (user) {
+            return Q.all(user.rooms.map(function (r) {
+                return r.table('rooms').get(r).run(req.rdb).then(rM.resolve);
+            }));
+        })
+        .spread(rM.resolveArgs)
+        .catch(rM.reject);
 }
 
 function update(req) {
