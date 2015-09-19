@@ -51,5 +51,7 @@ function resolveArgs() {
 }
 
 function reject(err) {
+    if (err.status)
+        return Q.reject(errMod.getError(err, err.status));
     return Q.reject(errMod.getError(err, 500));
 }

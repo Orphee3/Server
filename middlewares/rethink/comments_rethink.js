@@ -58,15 +58,10 @@ function getCreationComments(req) {
 
     return r.table('comments')
         .filter(r.row('creation').eq(req.params.id))
-        .map(function (creation) {
-            return creation.merge({
-                creator: r.table('users')
-                    .filter(function (user) {
-                        return creation('creator').contains(user('_id'))
-                    })
-                    .pluck('_id', 'name', 'picture')
-                    .coerceTo('array')
-            });
+        .map(function (comment) {
+            return comment.merge({
+                creator: r.table('users').get(comment('creator')).pluck('_id', 'name', 'picture')
+            })
         })
         .skip(offset)
         .limit(size)

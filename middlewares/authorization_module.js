@@ -41,7 +41,7 @@ function validateToken(option) {
                     user_middleware.getById(mockReq({rdb: req.rdb, params: {id: decoded.sub}}))
                         .then(function (user) {
                             if (!user)
-                                return res.status.json('User no longer exist', 401);
+                                return res.status(401).json('User no longer exist');
                             req.user = user;
                             next();
                         })
