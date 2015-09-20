@@ -96,10 +96,29 @@ exports.getFlux = function (req, res) {
 };
 
 exports.getNews = function (req, res) {
+    var deferred = Q.defer();
     var offset = parseInt(req.query.offset);
     var size = parseInt(req.query.size);
 
-    return utilities.getModelRefInfo(Model.User, req.params.id, {path: 'news', options: {skip: offset, limit: size}});
+    Model.User.findById(req.params.id)
+        .populate({path: 'news', options: {skip: offset, limit: size}}).exec(function (err, data) {
+            if (err) deferred.reject(err);
+            else {
+                if (data === null) deferred.resolve(data);
+                else {
+                    Model.User.populate(data, {path: 'news.userSource', select: 'name picture', model: 'User'}, function (err, data) {
+                        if (err) deferred.reject(err);
+                        else {
+                            Model.Creation.populate(data, {path: 'news.media', select: 'url picture'}, function (err, data) {
+                                if (err) deferred.reject(err);
+                                else  deferred.resolve(data.news);
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    return deferred.promise;
 };
 
 exports.getLastNews = function (req, res) {

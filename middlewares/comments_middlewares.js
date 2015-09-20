@@ -12,7 +12,7 @@ exports.create = function (req, res) {
     var deferred = Q.defer();
 
     creationMiddleware.getById({params: {id: req.body.creation}}, res)
-        .then(function () {
+        .then(function (creation) {
             if (req.body.creation === req.body.parentId) {
                 var comment = new Model.Comment();
                 comment.creation = req.body.creation;
@@ -22,12 +22,18 @@ exports.create = function (req, res) {
                 comment.save(function (err, c) {
                     if (err) deferred.reject(errMod.getError(err, 500));
                     else {
-                        Model.Comment.findById(c._id).populate({
-                            path: 'creator',
-                            select: 'name picture'
-                        }).exec(function (err, data) {
+                        creation.nbComments += 1;
+                        creation.save(function (err) {
                             if (err) deferred.reject(err);
-                            else deferred.resolve(data);
+                            else {
+                                Model.Comment.findById(c._id).populate({
+                                    path: 'creator',
+                                    select: 'name picture'
+                                }).exec(function (err, data) {
+                                    if (err) deferred.reject(err);
+                                    else deferred.resolve(data);
+                                });
+                            }
                         });
                     }
                 });
