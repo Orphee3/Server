@@ -24,7 +24,7 @@ function create(req, res, next) {
         data.creator = [req.body.creator];
     else
         data.creator = req.body.creator;
-    data.nbLikes = 0;
+    data.nbLikes = data.nbComments = 0;
     data.comments = [];
     data.isPrivate = false;
     data.authUser = [];

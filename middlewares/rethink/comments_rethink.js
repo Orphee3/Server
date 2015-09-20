@@ -28,7 +28,13 @@ function create(req) {
                     .insert(data, {returnChanges: true})
                     .run(req.rdb)
                     .then(function (res) {
-                        return Q(res.changes[0].new_val);
+                        return r.table('creations')
+                            .get(creation._id)
+                            .update({nbComments: creation.nbComments + 1}, {returnChanges: true})
+                            .run(req.rdb)
+                            .then(function () {
+                                return Q(res.changes[0].new_val);
+                            });
                     });
             } else {//@todo sub comment
                 /*data.parentId = req.body.parentId;

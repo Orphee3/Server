@@ -12,7 +12,7 @@ exports.create = create;
 function create(obj, req) {
     var data = {};
     data.type = obj.type;
-    if (obj.media) data.media = obj.media;
+    data.media = obj.media || 0;
     data.userSource = obj.userSource;
     data.dateCreation = new Date();
     return r.table('notifications')

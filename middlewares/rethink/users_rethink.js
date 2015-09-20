@@ -181,7 +181,12 @@ function getNews(req) {
         .run(req.rdb)
         .then(function (user) {
             return Q.all(user.news.map(function (n) {
-                return r.table('notifications').get(n).run(req.rdb).then(rM.resolve);
+                return r.table('notifications').get(n).merge(function (notif) {
+                    var obj = {};
+                    obj.media = r.table('creations').get(notif('media'));
+                    obj.userSource = r.table('users').get(notif('userSource')).pluck('_id', 'name', 'picture');
+                    return obj;
+                }).run(req.rdb).then(rM.resolve);
             }));
         })
         .spread(rM.resolveArgs)
