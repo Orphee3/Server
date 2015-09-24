@@ -183,7 +183,7 @@ module.exports = function (server) {
 
     server.post('/auth/facebook', function (req, res) {
         var accessTokenUrl = 'https://graph.facebook.com/v2.3/oauth/access_token';
-        var graphApiUrl = 'https://graph.facebook.com/v2.3/me';
+        var graphApiUrl = 'https://graph.facebook.com/v2.3/me' + '?fields=email,name,id';
         var params = {
             code: req.body.code,
             client_id: req.body.clientId,
@@ -208,7 +208,8 @@ module.exports = function (server) {
                             return user_middleware.create({body: {
                                 fbId: profile.id,
                                 picture: 'https://graph.facebook.com/v2.3/' + profile.id + '/picture?type=large',
-                                name: profile.name
+                                name: profile.name,
+                                username: profile.email
                             }, mysql: req.mysql, rdb: req.rdb}).then(function (user) {
                                 var token = createToken(user);
                                 return res.send({token : token, user: user});
@@ -252,7 +253,8 @@ module.exports = function (server) {
                             return user_middleware.create({body: {
                                 googleId: profile.sub,
                                 picture: profile.picture.replace('sz=50', 'sz=200'),
-                                name: profile.name
+                                name: profile.name,
+                                username: profile.email
                             }, mysql: req.mysql, rdb: req.rdb}).then(function (user) {
                                 var token = createToken(user);
                                 return res.send({token : token, user: user});
@@ -260,6 +262,7 @@ module.exports = function (server) {
                         }
                     })
                     .catch(function (err) {
+                        console.log('err', err);
                         if (err.statusCode) return res.status(err.statusCode).send(err.message);
                         return res.status(500).send(err.message);
                     });
