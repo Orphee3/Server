@@ -52,6 +52,14 @@ exports.getByGoogleId = function (req, res) {
     return Q(Model.User.findOne({googleId: req.params.googleId}).exec());
 };
 
+exports.getByMail = function (req, res) {
+    return Q(Model.User.findOne({username: req.body.username}).exec());
+};
+
+exports.getByResetToken = function (req, res) {
+    return Q(Model.User.findOne({resetPasswordToken: req.body.resetPasswordToken}).exec());
+};
+
 exports.getByName = function (req, res) {
     var offset = parseInt(req.query.offset);
     var size = parseInt(req.query.size);
@@ -162,7 +170,7 @@ exports.update = function (req, res) {
                 return deferred.promise;
             }
             var fields = ['name', 'username', 'password', 'picture', 'creations', 'groups', 'likes', 'comments',
-                'friends', 'flux', 'news', 'rooms'];
+                'friends', 'flux', 'news', 'rooms', 'resetPasswordToken'];
             fields.forEach(function (field) {
                 if (req.body[field]) user[field] = req.body[field];
             });

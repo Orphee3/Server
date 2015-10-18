@@ -19,7 +19,8 @@ var UserSchema = mongoose.Schema({
     isAdmin: {type: Boolean, default: false},
     flux: [{type: mongoose.Schema.Types.ObjectId, ref: 'Notification'}],
     news: [{type: mongoose.Schema.Types.ObjectId, ref: 'Notification'}],
-    rooms: [{type: mongoose.Schema.Types.ObjectId, ref: 'Room'}]
+    rooms: [{type: mongoose.Schema.Types.ObjectId, ref: 'Room'}],
+    resetPasswordToken: {type: String}
 });
 
 var CreationSchema = mongoose.Schema({

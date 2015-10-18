@@ -13,6 +13,8 @@ exports.getAll = getAll;
 exports.getById = getById;
 exports.getByFbId = getByFbId;
 exports.getByGoogleId = getByGoogleId;
+exports.getByMail = getByMail;
+exports.getByResetToken = getByResetToken;
 exports.getByName = getByName;
 exports.getCreation = getCreation;
 exports.getFriends = getFriends;
@@ -31,6 +33,7 @@ function create(req, res, next) {
     data.fbId = req.body.fbId || null;
     data.googleId = req.body.googleId || null;
     data.dateCreation = new Date();
+    data.resetPasswordToken = null;
     var arrayField = ['creations', 'groups', 'likes', 'comments', 'friends', 'flux', 'news', 'rooms'];
     arrayField.forEach(function (field) {
         data[field] = [];
@@ -92,6 +95,36 @@ function getByFbId(req) {
 function getByGoogleId(req) {
     return r.table('users')
         .filter(r.row('googleId').eq(req.params.googleId))
+        .limit(1)
+        .run(req.rdb)
+        .then(rM.resolveArray)
+        .then(function (res) {
+            if (res.length)
+                return Q(res[0]);
+            else
+                return Q(null);
+        })
+        .catch(rM.reject);
+}
+
+function getByMail(req) {
+    return r.table('users')
+        .filter(r.row('username').eq(req.body.username))
+        .limit(1)
+        .run(req.rdb)
+        .then(rM.resolveArray)
+        .then(function (res) {
+            if (res.length)
+                return Q(res[0]);
+            else
+                return Q(null);
+        })
+        .catch(rM.reject);
+}
+
+function getByResetToken(req) {
+    return r.table('users')
+        .filter(r.row('resetPasswordToken').eq(req.body.resetPasswordToken))
         .limit(1)
         .run(req.rdb)
         .then(rM.resolveArray)
@@ -212,11 +245,12 @@ function getRooms(req) {
 
 function update(req) {
     var data = {};
-    var fields = ['name', 'username', 'password', 'picture', 'creations', 'groups', 'likes', 'comments',
-        'friends', 'flux', 'news', 'rooms'];
+    var fields = ['name', 'username', 'picture', 'creations', 'groups', 'likes', 'comments',
+        'friends', 'flux', 'news', 'rooms', 'resetPasswordToken'];
     fields.forEach(function (field) {
         if (req.body[field]) data[field] = req.body[field];
     });
+    if (req.body.password) data.password = rM.hashPassword(req.body.password);
     return r.table('users')
         .get(req.params.id)
         .update(data, {returnChanges: true})

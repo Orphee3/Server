@@ -15,6 +15,7 @@ var nconf = require('nconf');
 var moment = require('moment');
 var errMod = require('./error_module');
 var request = require('request');
+var nodemailer = require('nodemailer');
 var authorization = require('./authorization_module');
 if (nconf.get('db') === 'mongodb') user_middleware = require('./users_middlewares');
 else if (nconf.get('db') === 'mysql') user_middleware = require('./users_middlewares_mysql');
@@ -49,6 +50,16 @@ module.exports = function (server) {
         var payload = {
             exp: moment().add(365, 'day').unix(),
             iat: moment().unix(),
+            sub: user._id
+        };
+        return jwt.encode(payload, nconf.get('secret'));
+    }
+
+    function createResetToken(user) {
+        var payload = {
+            exp: moment().add(7, 'days').unix(),
+            iat: moment().unix(),
+            reset: true,
             sub: user._id
         };
         return jwt.encode(payload, nconf.get('secret'));
@@ -180,6 +191,88 @@ module.exports = function (server) {
             return res.status(200).json({token: token, user: req.user});
         })(req, res, next);
     });
+
+    server.post('/api/forgot',
+        function (req, res, next) {
+            if (!req.body.username) return res.status(400).json('missing params');
+            user_middleware.getByMail(req)
+                .then(function (user) {
+                    if (!user) return res.status(500).json('user does not exist');
+                    req.user = user;
+                    next();
+                })
+                .catch(function (err) { return res.status(500).json(err); });
+        },
+        function (req, res) {
+            var resetToken = createResetToken(req.user);
+            user_middleware.update({rdb: req.rdb, params: {id: req.user._id}, body: {resetPasswordToken: resetToken}});
+            var transporter = nodemailer.createTransport({
+                service: 'Gmail',
+                auth: {
+                    user: nconf.get('gmail').email,
+                    pass: nconf.get('gmail').password
+                }
+            });
+
+            var link = nconf.get('host').local + '/reset/' + resetToken;
+
+            var message = '<div>' + nconf.get('language').en.hello + ' ' + req.user.name + ',</div><br/>' +
+                '<div>' + nconf.get('language').en.resetCore + '</div><br/>' +
+                'Confirmation Link: <a href=' + link + '>' + link + '</a><br/><br/>' +
+                nconf.get('language').en.resetEnd + '<br/><br/>' +
+                nconf.get('language').en.thank + ',<br/>' +
+                nconf.get('language').en.team;
+
+            var mailOptions = {
+                from: 'Orphee ' + nconf.get('gmail').email,
+                to: req.user.username,
+                subject: 'Password reset',
+                html: message
+            };
+
+            transporter.sendMail(mailOptions, function (err, info) {
+                if (err) res.status(500).json(err);
+                else res.status(200).json(info);
+            });
+        }
+    );
+
+    function validateResetToken(req, res, next) {
+        user_middleware.getByResetToken({rdb: req.rdb, body: {resetPasswordToken: req.params.token}})
+            .then(function (user) {
+                if (!user) return res.status(404).json('user not found');
+
+                var decoded = jwt.decode(req.params.token, nconf.get('secret'));
+                var now = moment().unix();
+
+                if (now > decoded.exp || !decoded.reset) {
+                    return res.status(401).json('token has expired');
+                } else {
+                    req.user = user;
+                    return next();
+                }
+            })
+            .catch(function (err) { return res.status(500).json(err); });
+    }
+
+    server.get('/reset/:token',
+        validateResetToken,
+        function (req, res) { res.render('reset'); }
+    );
+
+    server.post('/reset/:token',
+        validateResetToken,
+        function (req, res) {
+            if (!req.body.password) return res.status('400').json('missing params');
+            user_middleware.update({rdb: req.rdb, params: {id: req.user._id}, body: {resetPasswordToken: '0', password: req.body.password}})
+                .then(function () {
+                    res.redirect('/');
+                })
+                .catch(function (err) {
+                    res.send('error');
+                });
+        }
+    );
 
     server.post('/auth/facebook', function (req, res) {
         var accessTokenUrl = 'https://graph.facebook.com/v2.3/oauth/access_token';
