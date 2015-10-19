@@ -57,6 +57,7 @@ require('./middlewares/auth_module')(app);
 require('./middlewares/aws_module')(app, AWS);
 require('./middlewares/notification_module')(app);
 require('./middlewares/friend_module')(app);
+require('./middlewares/like_module')(app);
 app.use('/', routes);
 app.use('/api', users);
 app.use('/api', creations);

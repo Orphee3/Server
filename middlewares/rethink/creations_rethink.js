@@ -126,6 +126,10 @@ function update(req) {
     fields.forEach(function (field) {
         if (req.body[field]) data[field] = req.body[field];
     });
+    if (!req.body.nbLikes) {
+        if (typeof req.body.nbLikes === 'number' && req.body.nbLikes === 0)
+            data.nbLikes = 0;
+    }
     return r.table('creations')
         .get(req.params.id)
         .update(data, {returnChanges: true})

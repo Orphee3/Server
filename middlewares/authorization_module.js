@@ -52,7 +52,7 @@ function validateToken(option) {
                 return res.status(401).json('Format is Authorization: Bearer [token]');
             }
         } else {
-            return res.status(401).json('No authorization token was found', 401);
+            return res.status(401).json('No authorization token was found');
         }
         function mockReq(obj) {
             if (nconf.get('db') === 'mysql') {

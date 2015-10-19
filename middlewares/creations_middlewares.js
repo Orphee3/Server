@@ -93,6 +93,10 @@ exports.update = function (req, res) {
             fields.forEach(function (field) {
                 if (req.body[field]) creation[field] = req.body[field];
             });
+            if (!req.body.nbLikes) {
+                if (typeof req.body.nbLikes === 'number' && req.body.nbLikes === 0)
+                    data.nbLikes = 0;
+            }
             creation.save(function (err, creation) {
                 if (err)
                     deferred.reject(errMod.getError(err, 500));
