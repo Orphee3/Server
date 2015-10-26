@@ -203,7 +203,7 @@ module.exports = function (server) {
                 if (nconf.get('db') === 'mysql') {
                     return n.type === 'friend' && JSON.stringify(n.userSource) === JSON.stringify(usersource._id);
                 } else {
-                    return n.type === 'friend' && JSON.stringify(n.userSource) === JSON.stringify(usersource._id);
+                    return n.type === 'friend' && JSON.stringify(n.userSource._id) === JSON.stringify(usersource._id);
                 }
             }
         }
