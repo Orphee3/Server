@@ -27,13 +27,57 @@ module.exports = function (server) {
         authorization.validateToken({secret: nconf.get('secret')}),
         function (req, res, next) {
             utilities.useMiddleware(askFriend, req, res, next);
-        });
+        }
+    );
 
     server.get('/api/acceptfriend/:id',
         authorization.validateToken({secret: nconf.get('secret')}),
         function (req, res, next) {
             utilities.useMiddleware(acceptFriend, req, res, next);
+        }
+    );
+
+    server.get('/api/removeFriend/:id',
+        authorization.validateToken({secret: nconf.get('secret')}),
+        validateId,
+        checkIfFriend,
+        removeFriend
+    );
+
+    function validateId(req, res, next) {
+        middleware.getById(req)
+            .then(function (data) {
+                if (!data) return res.status(400).json('user does not exist');
+                else {
+                    req.target = data;
+                    next();
+                }
+            })
+            .catch(function (err) {
+                return res.status(500).json(err);
+            });
+    }
+
+    function checkIfFriend(req, res, next) {
+        if (req.user.friends.indexOf(req.params.id) === -1) return res.status(400).json('not friend yet');
+        else next();
+    }
+
+    function removeFriend(req, res) {
+        var index = req.user.friends.indexOf(req.params.id);
+        req.user.friends.splice(index, 1);
+        var indexT = req.target.friends.indexOf(req.user._id);
+        if (indexT >= 0) req.target.friends.splice(indexT, 1);
+
+        Q.all([
+            middleware.update({rdb: req.rdb, params: {id: req.user._id}, body: {friends: req.user.friends}}),
+            middleware.update({rdb: req.rdb, params: {id: req.params.id}, body: {friends: req.target.friends}})
+        ]).spread(function () {
+            return res.status(200).json('delete friend ok');
+        }).catch(function (err) {
+            return res.status(500).json(err);
         });
+    }
 
     function sendInvitation(req, source, target, deferred) {
 
@@ -124,8 +168,18 @@ module.exports = function (server) {
             return [
                 nSource,
                 nTarget,
-                middleware.getById(mockReq(req, {params: {id: nSource.userSource, projection: 'name picture dateCreation'}})),
-                middleware.getById(mockReq(req, {params: {id: nTarget.userSource, projection: 'name picture dateCreation'}}))
+                middleware.getById(mockReq(req, {
+                    params: {
+                        id: nSource.userSource,
+                        projection: 'name picture dateCreation'
+                    }
+                })),
+                middleware.getById(mockReq(req, {
+                    params: {
+                        id: nTarget.userSource,
+                        projection: 'name picture dateCreation'
+                    }
+                }))
             ];
         }
 
