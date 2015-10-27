@@ -117,7 +117,7 @@ exports.getNews = function (req, res) {
                     Model.User.populate(data, {path: 'news.userSource', select: 'name picture', model: 'User'}, function (err, data) {
                         if (err) deferred.reject(err);
                         else {
-                            Model.Creation.populate(data, {path: 'news.media', select: 'url picture'}, function (err, data) {
+                            Model.Creation.populate(data, {path: 'news.media', select: 'name url picture'}, function (err, data) {
                                 if (err) deferred.reject(err);
                                 else  deferred.resolve(data.news);
                             });
