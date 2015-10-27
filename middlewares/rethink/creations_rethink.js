@@ -142,5 +142,23 @@ function update(req) {
 }
 
 exports.delete = function (req) {
-
+    return r.table('creations')
+        .get(req.params.id)
+        .run(req.rdb)
+        .then(function (creation) {
+            if (!creation) return Q(creation);
+            return Q.all(creation.creator.map(function (userId) {
+                return r.table('users').get(userId).run(req.rdb).then(function (user) {
+                    var index = user.creations.indexOf(req.params.id);
+                    if (index === -1) return Q.resolve(null);
+                    user.creations.splice(index, 1);
+                    return User.update({rdb: req.rdb, params: {id: user._id}, body: {creations: user.creations}});
+                });
+            }));
+        })
+        .spread(function () {
+            return r.table('creations').get(req.params.id).delete().run(req.rdb)
+        })
+        .then(rM.resolve)
+        .catch(rM.reject);
 };

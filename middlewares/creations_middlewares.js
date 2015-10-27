@@ -109,5 +109,27 @@ exports.update = function (req, res) {
 };
 
 exports.delete = function (req, res) {
-    return Q(Model.Creation.remove({_id: req.params.id}).exec());
+    var deferred = Q.defer();
+
+    Model.Creation.findById(req.params.id, function (err, creation) {
+        if (err) deferred.reject(errMod.getError(err, 500));
+        else {
+            Q.all(creation.creator.map(function (userId) {
+                return User.getById({params: {id: userId}})
+                    .then(function (user) {
+                        var index = user.creations.indexOf(req.params.id);
+                        if (index === -1) return Q.resolve(null);
+                        user.creations.splice(index, 1);
+                        return User.update({params: {id: user._id}, body: {creations: user.creations}});
+                    });
+            })).spread(function () {
+                return Q(Model.Creation.remove({_id: req.params.id}).exec());
+            }).then(function (data) {
+                deferred.resolve(data);
+            }).catch(function (err) {
+                deferred.reject(errMod.getError(err, 500));
+            });
+        }
+    });
+    return deferred.promise;
 };
