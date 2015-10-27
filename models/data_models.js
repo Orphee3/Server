@@ -34,7 +34,8 @@ var CreationSchema = mongoose.Schema({
     isPrivate: {type: Boolean, default: false},
     authUser: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     awsKey: {type: String},
-    url: {type: String}
+    url: {type: String},
+    picture: {type: String}
 });
 
 var SubCommentSchema = mongoose.Schema({

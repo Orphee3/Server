@@ -1,6 +1,7 @@
 var errMod = require('./error_module');
 var utilities = require('./utilities_module');
 var nconf = require('nconf');
+var async = require('async');
 var authorization = require('./authorization_module');
 var middleware;
 
@@ -34,26 +35,48 @@ module.exports = function (server, AWS) {
         });
     });
 
-    server.post('/api/delete/:id',
+    server.post('/api/deleteAwsCreation/:id',
         authorization.validateToken({secret: nconf.get('secret')}),
         utilities.isCreatorOrAdmin(middleware.getCreator, 'creations'),
         function (req, res, next) {
             middleware.getById(req, res)
                 .then(function (data) {
-                    req.awsKey = data.awsKey;
+                    if (data.picture) req.awsKeyPicture = utilities.getAwsKey(data.picture);
+                    if (data.url) req.awsKeyCreation = utilities.getAwsKey(data.url);
                     return next();
                 })
                 .catch(function (err) {
-                    return next(err);
+                    return res.status(500).json(err);
                 })
         },
-        function (req, res, next) {
-            if (!req.awsKey)
-                return next(errMod.getError('Missing key', 400));
-            var deleteParams = {Bucket: nconf.get('amazon').bucket, Key: req.awsKey};
-            s3.deleteObject(deleteParams, function (err, data) {
-                if (err) return next(errMod.getError(err, 500));
-                return res.status(200).json({url: data});
+        function (req, res) {
+            if (!req.awsKeyPicture && !req.awsKeyCreation) return res.status(400).json('Missing key');
+
+            async.parallel([deletePicture, deleteCreation], function (err) {
+                if (err) return res.status(500).json(err);
+                else return res.status(200).json('delete media ok');
             });
-        });
+
+            function deletePicture(callback) {
+               delS3Object(req.awsKeyPicture, callback);
+            }
+
+            function deleteCreation(callback) {
+                delS3Object(req.awsKeyCreation, callback);
+            }
+
+            function delS3Object(key, callback) {
+                var deleteParams;
+
+                if (!key) callback();
+                else {
+                    deleteParams = {Bucket: nconf.get('amazon').bucket, Key: key};
+                    s3.deleteObject(deleteParams, function (err) {
+                        if (err) callback(err);
+                        callback();
+                    });
+                }
+            }
+        }
+    );
 };

@@ -100,3 +100,8 @@ exports.isAdmin = function(req, res, next) {
     }
     next();
 };
+
+exports.getAwsKey = function (url) {
+    var urlSplit = url.split('/');
+    return urlSplit[urlSplit.length - 2] + '/' + urlSplit[urlSplit.length - 1];
+};
