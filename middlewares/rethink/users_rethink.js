@@ -236,11 +236,20 @@ function getRooms(req) {
         .run(req.rdb)
         .then(function (user) {
             return Q.all(user.rooms.map(function (room) {
-                return r.table('rooms').get(room).run(req.rdb).then(rM.resolve);
+                return r.table('rooms').get(room).merge(function (rm) {
+                    var obj = {};
+                    obj.people = rm('people').map(predicateGetUser);
+                    obj.peopleTmp = rm('peopleTmp').map(predicateGetUser);
+                    return obj;
+                }).run(req.rdb).then(rM.resolve);
             }));
         })
         .spread(rM.resolveArgs)
         .catch(rM.reject);
+}
+
+function predicateGetUser(user) {
+    return r.table('users').get(user).pluck('_id', 'name', 'picture');
 }
 
 function update(req) {

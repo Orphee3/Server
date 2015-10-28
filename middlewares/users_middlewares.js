@@ -151,10 +151,29 @@ exports.getLastNews = function (req, res) {
 };
 
 exports.getRooms = function (req) {
+    var deferred = Q.defer();
     var offset = parseInt(req.query.offset);
     var size = parseInt(req.query.size);
 
-    return utilities.getModelRefInfo(Model.User, req.params.id, {path: 'rooms', options: {skip: offset, limit: size}});
+    Model.User.findById(req.params.id)
+        .populate({path: 'rooms', options: {skip: offset, limit: size}}).exec(function (err, data) {
+            if (err) deferred.reject(err);
+            else {
+                if (data === null) deferred.resolve(data);
+                else {
+                    Model.User.populate(data, {path: 'rooms.people', select: 'name picture', model: 'User'}, function (err, data) {
+                        if (err) deferred.reject(err);
+                        else {
+                            Model.User.populate(data, {path: 'rooms.peopleTmp', select: 'name picture', model: 'User'}, function (err, data) {
+                                if (err) deferred.reject(err);
+                                else deferred.resolve(data.rooms);
+                            })
+                        }
+                    });
+                }
+            }
+        });
+    return deferred.promise;
 };
 
 exports.update = function (req, res) {
