@@ -19,6 +19,7 @@ function create(req) {
     var room = new Model.Room();
     room.people = req.body.people;
     room.peopleTmp = req.body.peopleTmp;
+    room.private = false;
     room.save(function (err) {
         if (err)
             deferred.reject(err);

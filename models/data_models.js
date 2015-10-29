@@ -76,7 +76,8 @@ var RoomSchema = mongoose.Schema({
     peopleTmp: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     messages: [{type: mongoose.Schema.Types.ObjectId, ref: 'Message'}],
     lastMessageDate: {type: Date, default: Date.now},
-    dateCreation: {type: Date, default: Date.now}
+    dateCreation: {type: Date, default: Date.now},
+    private: {type: Boolean, default: true}
 });
 
 var MessageSchema = mongoose.Schema({
