@@ -3,6 +3,7 @@
  */
 
 var Q = require('q'),
+    Model = require('../models/data_models'),
     errMod = require('./error_module.js'),
     nconf = require('nconf');
 
@@ -104,4 +105,12 @@ exports.isAdmin = function(req, res, next) {
 exports.getAwsKey = function (url) {
     var urlSplit = url.split('/');
     return urlSplit[urlSplit.length - 2] + '/' + urlSplit[urlSplit.length - 1];
+};
+
+exports.populate = function (model, path, query, data, callback) {
+    if (data === null) callback();
+    Model[model].populate(data, {path: path, select: query, model: model}, function (err, data) {
+        if (err) return callback(err);
+        callback(null, data);
+    });
 };

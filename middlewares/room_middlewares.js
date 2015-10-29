@@ -142,7 +142,7 @@ function update(req) {
         if (err)
             deferred.reject(err);
         else {
-            var fields = ['people', 'peopleTmp', 'messages', 'lastMessageDate'];
+            var fields = ['people', 'peopleTmp', 'messages', 'lastMessageDate', 'lastMessage'];
             fields.forEach(function (field) {
                 if (req.body[field])
                     room[field] = req.body[field];

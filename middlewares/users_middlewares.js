@@ -2,6 +2,7 @@
  * Created by Eric on 19/02/2015.
  */
 var Q = require('q'),
+    async = require('async'),
     Model = require('../models/data_models'),
     errMod = require('./error_module.js'),
     utilities = require('./utilities_module.js');
@@ -155,26 +156,43 @@ exports.getRooms = function (req) {
     var offset = parseInt(req.query.offset);
     var size = parseInt(req.query.size);
 
-    Model.User.findById(req.params.id)
-        .populate({path: 'rooms', options: {skip: offset, limit: size}}).exec(function (err, data) {
-            if (err) deferred.reject(err);
-            else {
-                if (data === null) deferred.resolve(data);
-                else {
-                    Model.User.populate(data, {path: 'rooms.people', select: 'name picture', model: 'User'}, function (err, data) {
-                        if (err) deferred.reject(err);
-                        else {
-                            Model.User.populate(data, {path: 'rooms.peopleTmp', select: 'name picture', model: 'User'}, function (err, data) {
-                                if (err) deferred.reject(err);
-                                else deferred.resolve(data.rooms);
-                            })
-                        }
-                    });
-                }
-            }
-        });
+    async.waterfall([
+        populateRooms,
+        populateRoomPeople,
+        populateRoomPeopleTmp,
+        populateRoomLastMessageCreator
+    ], function (err, res) {
+        if (err) deferred.reject(err);
+        else {
+            if (res === null) deferred.resolve(res);
+            else deferred.resolve(res.rooms);
+        }
+    });
+
+    function populateRooms(callback) {
+        Model.User
+            .findById(req.params.id)
+            .populate({path: 'rooms', options: {skip: offset, limit: size}})
+            .exec(function (err, data) {
+                if (err) return callback(err);
+                return callback(null, data);
+            });
+    }
+    
     return deferred.promise;
 };
+
+function populateRoomPeople(data, callback) {
+    utilities.populate('User', 'rooms.people', 'name picture', data, callback);
+}
+
+function populateRoomPeopleTmp(data, callback) {
+    utilities.populate('User', 'rooms.peopleTmp', 'name picture', data, callback);
+}
+
+function populateRoomLastMessageCreator(data, callback) {
+    utilities.populate('User', 'rooms.lastMessage.creator', 'name', data, callback);
+}
 
 exports.update = function (req, res) {
     var deferred = Q.defer();

@@ -76,7 +76,7 @@ function onGroupMessage(socket, data) {
         var promises = [
             message,
             User.getById({params: {id: socket.request.user._id}}),
-            Room.update({params: {id: room._id}, body: {people: room.people, peopleTmp: [], messages: roomMessages, lastMessageDate: message.dateCreation}})
+            Room.update({params: {id: room._id}, body: {people: room.people, peopleTmp: [], messages: roomMessages, lastMessageDate: message.dateCreation, lastMessage: message}})
         ];
         room.peopleTmp.forEach(function (user) {
             promises.push(User.updateRef({params: {id: user}, body: {rooms: room._id}}));
@@ -140,7 +140,7 @@ function onPrivateMessage(socket, data) {
             uSource,
             uTarget,
             message,
-            Room.update({rdb: req.rdb, params: {id: room._id}, body: {messages: roomMessages, lastMessageDate: message.dateCreation}})
+            Room.update({rdb: req.rdb, params: {id: room._id}, body: {messages: roomMessages, lastMessageDate: message.dateCreation, lastMessage: message}})
         ];
     }
 

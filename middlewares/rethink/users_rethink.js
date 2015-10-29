@@ -240,6 +240,9 @@ function getRooms(req) {
                     var obj = {};
                     obj.people = rm('people').map(predicateGetUser);
                     obj.peopleTmp = rm('peopleTmp').map(predicateGetUser);
+                    obj.lastMessage = rm('lastMessage').merge({
+                        creator: r.table('users').get(rm('lastMessage')('creator')).pluck('_id', 'name')
+                    });
                     return obj;
                 }).run(req.rdb).then(rM.resolve);
             }));

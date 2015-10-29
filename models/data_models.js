@@ -70,20 +70,21 @@ var GroupSchema = mongoose.Schema({
     creation: [{type: mongoose.Schema.Types.ObjectId, ref: 'Creation'}]
 });
 
+var MessageSchema = mongoose.Schema({
+    creator: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    message: {type: String},
+    dateCreation: {type: Date, default: Date.now}
+});
+
 var RoomSchema = mongoose.Schema({
     name: {type: String},
     people: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     peopleTmp: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     messages: [{type: mongoose.Schema.Types.ObjectId, ref: 'Message'}],
     lastMessageDate: {type: Date, default: Date.now},
+    lastMessage: MessageSchema,
     dateCreation: {type: Date, default: Date.now},
     private: {type: Boolean, default: true}
-});
-
-var MessageSchema = mongoose.Schema({
-    creator: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    message: {type: String},
-    dateCreation: {type: Date, default: Date.now}
 });
 
 exports.User = mongoose.model('User', UserSchema);

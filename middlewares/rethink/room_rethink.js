@@ -21,8 +21,10 @@ function create(req) {
     data.people = req.body.people || [];
     data.peopleTmp = req.body.peopleTmp || [];
     data.messages = [];
+    data.lastMessage = null;
     data.dateCreation = new Date();
     data.lastMessageDate = data.dateCreation;
+    data.private = req.body.private || false;
 
     return r.table('rooms')
         .insert(data, {returnChanges: true})
@@ -58,7 +60,8 @@ function findByNameOrCreate(idSource, idTarget, req) {
                     rdb: req.rdb,
                     body: {
                         name: idRoom,
-                        people: [idSource, idTarget]
+                        people: [idSource, idTarget],
+                        private: true
                     }
                 }).then(function (room) {
                     console.log('room', room);
@@ -118,7 +121,7 @@ function getPrivateMessage(req) {
 function update(req) {
     var data = {};
 
-    var fields = ['people', 'peopleTmp', 'messages', 'lastMessageDate'];
+    var fields = ['people', 'peopleTmp', 'messages', 'lastMessageDate', 'lastMessage'];
     fields.forEach(function (field) {
         if (req.body[field]) data[field] = req.body[field];
     });
