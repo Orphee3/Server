@@ -4,12 +4,12 @@
 var mongoose = require('mongoose');
 
 var UserSchema = mongoose.Schema({
-    name: String,
+    name: {type: String},
     username: {type: String, index: {unique: true}},
     password: {type: String, select: false},
     picture: {type: String},
-    fbId: {type: String, index: {unique: true}},
-    googleId: {type: Number, index: {unique: true}},
+    fbId: {type: String},
+    googleId: {type: String},
     dateCreation: {type: Date, default: Date.now},
     creations: [{type: mongoose.Schema.Types.ObjectId, ref: 'Creation'}],
     groups: [{type: mongoose.Schema.Types.ObjectId, ref: 'Group'}],

@@ -310,7 +310,7 @@ module.exports = function (server) {
                         }
                     })
                     .catch(function (err) {
-                        if (err.statusCode) return res.status(err.statusCode).send(err.message);
+                        if (err.status) return res.status(err.status).send(err.message);
                         return res.status(500).send(err.message);
                     });
             });
@@ -355,8 +355,7 @@ module.exports = function (server) {
                         }
                     })
                     .catch(function (err) {
-                        console.log('err', err);
-                        if (err.statusCode) return res.status(err.statusCode).send(err.message);
+                        if (err.status) return res.status(err.status).send(err.message);
                         return res.status(500).send(err.message);
                     });
             });

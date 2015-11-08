@@ -15,10 +15,9 @@ exports.create = function (req, res) {
     user.name = req.body.name;
     user.username = req.body.username;
     user.password = req.body.password;
+    if (req.body.picture) user.picture = req.body.picture;
     if (req.body.fbId) user.fbId = req.body.fbId;
-    if (req.body.fbToken) user.fbToken = req.body.fbToken;
     if (req.body.googleId) user.googleId = req.body.googleId;
-    if (req.body.googleToken) user.googleToken = req.body.googleToken;
 
 
     user.save(function (err) {
