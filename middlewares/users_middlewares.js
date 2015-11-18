@@ -3,6 +3,7 @@
  */
 var Q = require('q'),
     async = require('async'),
+    nconf = require('nconf'),
     Model = require('../models/data_models'),
     errMod = require('./error_module.js'),
     utilities = require('./utilities_module.js');
@@ -15,7 +16,7 @@ exports.create = function (req, res) {
     user.name = req.body.name;
     user.username = req.body.username;
     user.password = req.body.password;
-    if (req.body.picture) user.picture = req.body.picture;
+    user.picture = req.body.picture || nconf.get('default-picture');
     if (req.body.fbId) user.fbId = req.body.fbId;
     if (req.body.googleId) user.googleId = req.body.googleId;
 
@@ -69,8 +70,22 @@ exports.getByName = function (req, res) {
 };
 
 exports.getCreation = function (req, res) {
-    return utilities.getModelRefInfo(Model.User, req.params.id, {path: 'creations', match: {isPrivate: false}});
-    //return utilities.getModelRefInfo(Model.User, req.params.id, 'creation');
+    var deferred = Q.defer();
+
+    Model.User.findById(req.params.id)
+        .populate({path: 'creations', match: {isPrivate: false}}).exec(function (err, data) {
+        if(err) deferred.reject(err);
+        else {
+            if (data === null) deferred.resolve(data);
+            else {
+                Model.User.populate(data, {path: 'creations.creator', select: 'name picture', model: 'User'}, function (err, data) {
+                    if (err) deferred.reject(err);
+                    else deferred.resolve(data.creations);
+                });
+            }
+        }
+    });
+    return deferred.promise;
 };
 
 exports.getCreationPrivate = function (req, res) {

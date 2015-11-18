@@ -4,6 +4,7 @@
 
 var r = require('rethinkdb');
 var Q = require('q');
+var nconf = require('nconf');
 
 var rM = require('./rethink_module');
 var errMod = require('../error_module');
@@ -29,7 +30,7 @@ function create(req, res, next) {
     data.name = req.body.name;
     data.username = req.body.username || null;
     data.password = rM.hashPassword(req.body.password);
-    data.picture = req.body.picture || null;
+    data.picture = req.body.picture || nconf.get('default-picture');
     data.fbId = req.body.fbId || null;
     data.googleId = req.body.googleId || null;
     data.dateCreation = new Date();
@@ -159,7 +160,11 @@ function getCreation(req) {
         .run(req.rdb)
         .then(function (user) {
             return Q.all(user.creations.map(function (creation) {
-                return r.table('creations').get(creation).run(req.rdb).then(rM.resolve);
+                return r.table('creations').get(creation).merge(function (creation) {
+                    var obj = {};
+                    obj.creator = creation('creator').map(predicateGetUser);
+                    return obj;
+                }).run(req.rdb).then(rM.resolve);
             }));
         })
         .spread(rM.resolveArgs)
