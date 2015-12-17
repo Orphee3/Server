@@ -11,6 +11,7 @@ var r = require('rethinkdb');
 
 var auth = require('./socket_auth');
 var chat = require('./socket_chat');
+var game = require('./socket_game');
 var e = require('./socket_error');
 
 var pub = redis.createClient();
@@ -58,6 +59,14 @@ function Notification(io) {
         socket.on('create chat group', chat.onCreateChatGroup.bind(null, socket));
         socket.on('group message', chat.onGroupMessage.bind(null, socket));
         socket.on('private message', chat.onPrivateMessage.bind(null, socket));
+
+        socket.on('create game room', game.onCreateGameRoom.bind(null, socket));
+        socket.on('get game rooms', game.onGetGameRooms.bind(null, socket));
+        socket.on('join game room', game.onJoinGameRoom.bind(null, socket));
+        socket.on('data game', game.onSendDataGame.bind(null, socket));
+        socket.on('get all data game', game.onGetAllDataGame.bind(null, socket));
+        socket.on('host send data', game.onGetDataFromHost.bind(null, socket));
+        socket.on('big bang', game.onBigBang.bind(null, socket));
     });
 
     sub.on('message', actions.sendInfoToClient);
