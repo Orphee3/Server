@@ -63,6 +63,8 @@ function Notification(io) {
         socket.on('create game room', game.onCreateGameRoom.bind(null, socket));
         socket.on('get game rooms', game.onGetGameRooms.bind(null, socket));
         socket.on('join game room', game.onJoinGameRoom.bind(null, socket));
+        socket.on('leave game room', game.onLeaveGameRoom.bind(null, socket));
+        socket.on('kick user', game.onKickUser.bind(null, socket));
         socket.on('data game', game.onSendDataGame.bind(null, socket));
         socket.on('get all data game', game.onGetAllDataGame.bind(null, socket));
         socket.on('host send data', game.onGetDataFromHost.bind(null, socket));
