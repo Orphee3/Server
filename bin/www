@@ -18,7 +18,7 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
-
+if (process.env.NODE_APP_INSTANCE) port += (parseInt(process.env.NODE_APP_INSTANCE) + 1);
 var server = http.createServer(app);
 
 
